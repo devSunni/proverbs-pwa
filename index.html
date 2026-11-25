@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#FF6B4A" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="어린이 속담" />
+  <meta name="description" content="찹이 패밀리와 함께 준우·지우가 배우는 초등 필수 속담 100개 오프라인 학습 PWA" />
+  <title>읽으면서 바로 써먹는 어린이 속담 | 초등 어휘력 PWA</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap');
+    :root {
+      --bg-cream: #FFFBF0;
+      --sky-book: #74C0FC;
+      --sky-deep: #1DA1F2;
+      --coral: #FF6B4A;
+      --pouch: #F68372;
+      --sunny: #FFE033;
+      --mint: #2EC4B6;
+      --pink: #FB7185;
+      --ink: #222222;
+      --comic-border: 2.5px solid #222222;
+      --comic-shadow: 0 4px 0 #222222;
+      --comic-shadow-sm: 0 2px 0 #222222;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+      background-color: var(--bg-cream);
+      background-image: radial-gradient(rgba(255, 107, 74, 0.08) 1px, transparent 1px);
+      background-size: 20px 20px;
+      color: var(--ink);
+      overflow-x: hidden;
+      max-width: 100vw;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      overscroll-behavior-y: contain;
+    }
+    img, svg, button {
+      -webkit-touch-callout: none;
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+    input, textarea, select {
+      -webkit-user-select: text;
+      user-select: text;
+      -webkit-touch-callout: default;
+    }
+    .font-title {
+      font-family: 'Jua', 'Noto Sans KR', sans-serif;
+    }
+    /* Book-cover comic card & button styles */
+    .comic-card {
+      border: var(--comic-border);
+      box-shadow: var(--comic-shadow);
+    }
+    .comic-btn {
+      border: 2px solid #222222;
+      box-shadow: var(--comic-shadow-sm);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+    }
+    .comic-btn:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 #222222;
+    }
+    .card-shadow {
+      border: 2px solid #222222;
+      box-shadow: 0 3px 0 #222222;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.15s ease;
+    }
+    .card-shadow:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #222222;
+    }
+    .book-word-blue {
+      color: #1DA1F2;
+      -webkit-text-stroke: 1px #222222;
+      text-shadow: 2px 2px 0 #222222;
+    }
+    .book-word-yellow {
+      color: #FFE033;
+      -webkit-text-stroke: 1px #222222;
+      text-shadow: 2px 2px 0 #222222;
+    }
+    .book-hero {
+      background:
+        radial-gradient(circle at 88% 18%, rgba(255, 224, 51, 0.35) 0%, transparent 32%),
+        linear-gradient(135deg, #74C0FC 0%, #99D5FF 24%, #FF9B85 24.5%, #F68372 100%);
+      border: 3px solid #222222;
+      box-shadow: 0 5px 0 #222222;
+    }
+    .comic-burst {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFE033;
+      color: #222222;
+      border: 2px solid #222222;
+      box-shadow: 2px 2px 0 #222222;
+      transform: rotate(6deg);
+    }
+    .profile-switch {
+      display: inline-flex;
+      background: #F3F4F6;
+      border: 2px solid #222222;
+      border-radius: 999px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .profile-btn {
+      border: none;
+      background: transparent;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+      color: #555555;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .profile-btn.active-junwoo {
+      background: #1DA1F2;
+      color: #FFFFFF;
+      box-shadow: 0 1px 0 #222222;
+    }
+    .profile-btn.active-jiwoo {
+      background: #FB7185;
+      color: #FFFFFF;
+      box-shadow: 0 1px 0 #222222;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes popIn {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop { animation: popIn 0.2s ease-out; }
+
+    /* Narrow phone / Z Fold cover screen */
+    @media (max-width: 390px) {
+      .header-title-text { font-size: 15px; }
+      .tab-btn { padding: 6px 10px; font-size: 12px; }
+      .profile-btn { padding: 4px 8px; font-size: 11px; }
+    }
+
+    /* Tablet & Z Fold unfolded landscape */
+    @media (min-width: 768px) {
+      .quiz-choice-btn { min-height: 76px; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 bg-[#FFFBF0]/95 backdrop-blur border-b-[2.5px] border-[#222222]">
+    <div class="max-w-5xl lg:max-w-6xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <img src="./assets/chabi-mascot.jpg"
+             alt="찹이 마스코트"
+             class="w-11 h-11 rounded-2xl object-cover border-2 border-[#222222] shadow-[2px_2px_0_#222] shrink-0 bg-white" />
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <h1 class="font-title header-title-text text-lg sm:text-xl text-[#222222] leading-tight truncate">
+              읽으면서 바로 써먹는 <span class="book-word-blue">어린이</span> <span class="book-word-yellow">속담</span>
+            </h1>
+            <span class="comic-burst text-[11px] font-black px-1.5 py-0.5 rounded-lg shrink-0">!! 100</span>
+          </div>
+          <p class="text-[11px] sm:text-xs text-slate-600 font-semibold truncate">찹이 패밀리와 함께하는 준우·지우 어휘력 PWA</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap">
+        <!-- Junwoo / Jiwoo Dual Profile Switcher -->
+        <div class="profile-switch" role="group" aria-label="프로필 전환">
+          <button id="btnProfileJunwoo" type="button" class="profile-btn" data-profile="junwoo">👦 준우</button>
+          <button id="btnProfileJiwoo" type="button" class="profile-btn" data-profile="jiwoo">👧 지우</button>
+        </div>
+        <button id="btnSoundToggle" type="button"
+                aria-label="소리 켜기/끄기"
+                class="comic-btn px-2.5 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-[#222222] text-xs font-extrabold flex items-center gap-1">
+          <span id="soundIcon">🔊</span>
+          <span class="hidden sm:inline" id="soundLabel">소리 켜짐</span>
+        </button>
+        <button id="btnInstallHeader" type="button"
+                class="comic-btn px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#FF6B4A] hover:bg-[#f05837] text-white text-xs font-extrabold flex items-center gap-1">
+          <span>📲</span>
+          <span class="hidden sm:inline">앱 설치</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-5xl lg:max-w-6xl mx-auto px-3 sm:px-4 pb-2.5 flex items-center justify-between gap-2 flex-wrap">
+      <nav class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" aria-label="학습 메뉴">
+        <button data-tab="explore" class="tab-btn comic-btn px-3.5 py-2 rounded-xl text-sm font-extrabold whitespace-nowrap">📚 속담 도감</button>
+        <button data-tab="quiz" class="tab-btn comic-btn px-3.5 py-2 rounded-xl text-sm font-extrabold whitespace-nowrap">🎯 속담 퀴즈</button>
+        <button data-tab="practice" class="tab-btn comic-btn px-3.5 py-2 rounded-xl text-sm font-extrabold whitespace-nowrap">✏️ 따라쓰기 미션</button>
+        <button data-tab="progress" class="tab-btn comic-btn px-3.5 py-2 rounded-xl text-sm font-extrabold whitespace-nowrap">🏆 내 학습장</button>
+      </nav>
+      <div class="hidden md:flex items-center gap-1.5 text-xs text-slate-700 bg-white px-2.5 py-1 rounded-xl border-2 border-[#222222]">
+        <span class="font-black text-[#FF6B4A]">시리즈:</span>
+        <span class="px-2 py-0.5 bg-[#FFE033] rounded-lg border border-[#222222] text-[#222222] font-black">속담</span>
+        <button type="button" data-series="관용구" class="series-soon px-1.5 py-0.5 rounded hover:bg-amber-100 font-bold transition">관용구(예정)</button>
+        <button type="button" data-series="고사성어" class="series-soon px-1.5 py-0.5 rounded hover:bg-amber-100 font-bold transition">고사성어(예정)</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-5xl lg:max-w-6xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-5">
+    <!-- Hero Banner (Book Cover Vibe - Shown on Explore) -->
+    <section id="heroSection" class="mb-5 book-hero rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4">
+      <img src="./assets/chabi-hero.jpg"
+           alt="찹이 패밀리 속담 공부"
+           class="w-full sm:w-56 h-36 sm:h-32 object-cover rounded-2xl border-[2.5px] border-[#222222] shadow-[3px_3px_0_#222] shrink-0 bg-white" />
+      <div class="flex-1 min-w-0 text-center sm:text-left">
+        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white border-2 border-[#222222] text-xs font-extrabold text-[#222222] mb-2 shadow-[2px_2px_0_#222]">
+          <span id="heroProfileBadge">👦 준우의 속담 보물주머니</span>
+        </div>
+        <h2 class="font-title text-xl sm:text-2xl text-white drop-shadow-[1px_2px_0_#222] mb-1">
+          속담 100개, 읽고 바로 써먹자! <span class="text-[#FFE033]">척! 찰칵!</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-white/95 font-bold mb-3">
+          🍡 찹이 · 두야 · 모네 · 쎄세 · 래야 · 뽀기와 카드를 열어 뜻을 상상하고 퀴즈에 도전해 봐요!
+        </p>
+        <div class="flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
+          <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border-2 border-[#222222] shadow-[2px_2px_0_#222] text-xs font-extrabold">
+            <span class="text-emerald-600">⭐ 외운 속담</span>
+            <span id="heroMasteredCount" class="text-base text-[#222222]">0 / 100</span>
+          </div>
+          <button id="btnQuickQuiz" type="button" class="comic-btn px-3.5 py-2 rounded-xl bg-[#FFE033] hover:bg-[#ffd60a] text-[#222222] text-xs font-black">
+            ⚡ 오늘의 10문제 도전!
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dynamic View Container -->
+    <div id="viewContainer"></div>
+  </main>
+
+  <!-- Proverb Detail Modal -->
+  <div id="proverbModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 backdrop-blur-sm p-3 sm:p-4">
+    <div class="bg-[#FFFBF0] rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto comic-card animate-pop">
+      <div id="proverbModalBody" class="p-5 sm:p-6"></div>
+    </div>
+  </div>
+
+  <!-- PWA Install / Info Modal -->
+  <div id="installModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full comic-card p-6 animate-pop">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-title text-xl text-[#222222]">📲 홈 화면에 앱 설치하기</h3>
+        <button id="btnCloseInstall" type="button" class="comic-btn px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black">✕</button>
+      </div>
+      <div id="installModalContent" class="text-sm text-slate-700 space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- Confirm Reset Modal -->
+  <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full comic-card p-6 animate-pop">
+      <h3 id="resetModalTitle" class="font-title text-lg text-[#222222] mb-2">학습 기록을 초기화할까요?</h3>
+      <p class="text-sm text-slate-600 mb-5">현재 선택된 프로필의 외운 속담, 즐겨찾기, 오답노트 기록이 처음 상태로 돌아갑니다.</p>
+      <div class="flex justify-end gap-2">
+        <button id="btnCancelReset" type="button" class="comic-btn px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-extrabold">취소</button>
+        <button id="btnConfirmReset" type="button" class="comic-btn px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-extrabold">초기화하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-2xl bg-[#222222] text-white text-sm font-extrabold border-2 border-[#FFE033] shadow-lg whitespace-nowrap max-w-[92vw] truncate"></div>
+
+  <script>
+    // ==========================================
+    // 1. 100 Proverbs Data (읽으면서 바로 써먹는 어린이 속담 목차 01~100)
+    // ==========================================
+    const PROVERBS = [
+      // ㄱ (01~18)
+      { id: 1, ch: 'ㄱ', t: '가는 날이 장날', m: '어떤 일을 하려고 마음먹고 갔는데 마침 공교로운 일이 겹친 것을 뜻해요.', s: '찹이가 모처럼 놀이공원에 갔는데 하필 그날이 정기 휴무일이었대요!', ex: '오랜만에 서점에 갔더니 문 닫는 날이라니, 가는 날이 장날이네.', b: '장날' },
+      { id: 2, ch: 'ㄱ', t: '가는 말이 고와야 오는 말이 곱다', m: '내가 먼저 남에게 좋은 말을 해야 남도 나에게 좋은 말로 대답한다는 뜻이에요.', s: '두야가 쎄세에게 다정하게 인사하자 쎄세도 웃으며 간식을 나눠 주었어요.', ex: '친구에게 상처 주는 말을 하기 전에 가는 말이 고와야 오는 말이 곱다는 걸 기억해.', b: '고와야' },
+      { id: 3, ch: 'ㄱ', t: '가랑비에 옷 젖는 줄 모른다', m: '조금씩 일어나는 작은 일도 자꾸 쌓이면 나중에 큰 결과를 만든다는 뜻이에요.', s: '모네가 매일 10분씩만 책장을 정리했더니 어느새 방이 반짝반짝해졌어요.', ex: '하루 500원씩 쓰는 돈도 모이면 커지니 가랑비에 옷 젖는 줄 모른다고 하잖아.', b: '가랑비' },
+      { id: 4, ch: 'ㄱ', t: '가재는 게 편', m: '모양이나 처지가 서로 비슷한 사람끼리 한 편이 되어 감싸 준다는 뜻이에요.', s: '떡 친구인 찹이와 래야가 게임할 때마다 서로 편만 들어 주며 응원해요.', ex: '둘이 맨날 같은 편만 드는 걸 보니 역시 가재는 게 편이구나.', b: '게' },
+      { id: 5, ch: 'ㄱ', t: '가지 많은 나무에 바람 잘 날 없다', m: '자식이 많거나 챙겨야 할 일이 많으면 걱정할 일도 끊이지 않는다는 뜻이에요.', s: '동생이 다섯 명인 두야네 집은 하루도 조용할 틈 없이 크고 작은 일이 생겨요.', ex: '동아리 부원이 스무 명이나 되니 회장인 내가 쉴 틈이 없어. 가지 많은 나무에 바람 잘 날 없다더니.', b: '바람' },
+      { id: 6, ch: 'ㄱ', t: '간에 붙었다 쓸개에 붙었다 한다', m: '자기에게 이익이 되는 쪽을 따라 이리저리 태도를 쉽게 바꾼다는 뜻이에요.', s: '뽀기가 피구 경기에서 이기는 팀 쪽으로만 슬금슬금 옮겨 다니며 응원해요.', ex: '유리할 때만 친구인 척하다니, 간에 붙었다 쓸개에 붙었다 하면 안 되지.', b: '쓸개' },
+      { id: 7, ch: 'ㄱ', t: '같은 값이면 다홍치마', m: '가격이나 조건이 같다면 더 보기 좋고 품질이 나은 것을 고른다는 뜻이에요.', s: '공책 가격이 똑같다면 표지가 알록달록 예쁜 공책을 고르는 쎄세!', ex: '똑같은 값이라면 디자인이 더 예쁜 걸로 살래, 같은 값이면 다홍치마잖아.', b: '다홍치마' },
+      { id: 8, ch: 'ㄱ', t: '개구리 올챙이 적 생각 못 한다', m: '성공하거나 형편이 나아진 뒤에 예전에 어렵고 서툴렀던 시절을 잊어버린다는 뜻이에요.', s: '줄넘기를 잘하게 된 래야가 이제 막 배우는 동생을 보고 왜 못하냐며 웃어요.', ex: '너도 처음엔 구구단 헷갈려 했으면서, 개구리 올챙이 적 생각 못 하네.', b: '올챙이' },
+      { id: 9, ch: 'ㄱ', t: '개똥도 약에 쓰려면 없다', m: '평소에는 흔하게 널려 있던 것도 막상 꼭 필요해서 찾으려면 구하기 어렵다는 뜻이에요.', s: '평소엔 서랍에 굴러다니던 지우개가 시험 시간 직전에 찾으니 하나도 안 보여요.', ex: '맨날 보이던 가위가 필요할 땐 꼭 안 보이네. 개똥도 약에 쓰려면 없다더니.', b: '약' },
+      { id: 10, ch: 'ㄱ', t: '고래 싸움에 새우 등 터진다', m: '힘센 사람들끼리 다투는 사이에 아무 힘없는 약한 사람이 피해를 본다는 뜻이에요.', s: '형과 누나가 리모컨을 두고 싸우다가 옆에 있던 막내 찹이의 블록 성이 무너졌어요.', ex: '큰 회사 둘이 가격 경쟁을 벌이다가 작은 가게만 힘들어지니 고래 싸움에 새우 등 터지는 격이지.', b: '새우' },
+      { id: 11, ch: 'ㄱ', t: '고생 끝에 낙이 온다', m: '힘들고 어려운 일을 참고 이겨 내면 반드시 기쁘고 보람찬 날이 온다는 뜻이에요.', s: '여름 내내 땀 흘리며 달리기 연습을 한 찹이가 가을 운동회에서 금메달을 땄어요.', ex: '열심히 시험 준비하느라 힘들었지? 고생 끝에 낙이 온다고 이제 마음껏 놀자!', b: '낙' },
+      { id: 12, ch: 'ㄱ', t: '고양이 목에 방울 달기', m: '모두에게 좋은 생각이지만 정작 위험하고 어려워서 아무도 선뜻 나서지 못한다는 뜻이에요.', s: '교실 규칙을 어기는 반장에게 직접 말하자고 했지만 아무도 나서지 못해요.', ex: '말만 앞세우고 실행할 사람이 없으니 고양이 목에 방울 달기지 뭐.', b: '방울' },
+      { id: 13, ch: 'ㄱ', t: '공든 탑이 무너지랴', m: '온 정성과 힘을 다해 꾸준히 노력한 일은 쉽게 헛되지 않고 좋은 결과를 맺는다는 뜻이에요.', s: '매일 꾸준히 받아쓰기 연습을 한 두야가 드디어 100점을 받았어요!', ex: '네가 몇 달 동안 성실하게 준비했으니 꼭 잘될 거야. 공든 탑이 무너지랴.', b: '탑' },
+      { id: 14, ch: 'ㄱ', t: '구슬이 서 말이라도 꿰어야 보배', m: '아무리 좋은 재료나 재주가 있어도 잘 다듬고 엮어서 쓸 수 있게 만들어야 가치가 있다는 뜻이에요.', s: '모네가 예쁜 스티커를 잔뜩 모았지만 공책에 붙이거나 정리하지 않으면 쓸모가 없어요.', ex: '좋은 아이디어를 많이 떠올렸으면 발표 자료로 정리해 봐. 구슬이 서 말이라도 꿰어야 보배야.', b: '보배' },
+      { id: 15, ch: 'ㄱ', t: '굼벵이도 구르는 재주는 있다', m: '겉보기에 부족하거나 느려 보이는 사람이라도 자기만의 특별한 재능 하나쯤은 있다는 뜻이에요.', s: '달리기는 느리지만 종이접기만큼은 반에서 최고인 뽀기가 모두를 놀라게 했어요.', ex: '내가 운동은 서툴러도 그림 그리는 건 자신 있어! 굼벵이도 구르는 재주는 있거든.', b: '구르는' },
+      { id: 16, ch: 'ㄱ', t: '금강산도 식후경', m: '아무리 재미있고 좋은 구경이나 일이라도 배가 불러야 신이 난다는 뜻이에요.', s: '체험학습 박물관에 도착하자마자 찹이는 도시락부터 먹자고 외쳤어요.', ex: '일단 맛있는 떡볶이부터 먹고 출발하자, 금강산도 식후경이잖아!', b: '식후경' },
+      { id: 17, ch: 'ㄱ', t: '까마귀 날자 배 떨어진다', m: '우연히 두 일이 같은 때에 일어나서 마치 서로 관계가 있는 것처럼 오해를 받는다는 뜻이에요.', s: '쎄세가 냉장고 옆을 지나가자마자 문이 열려 있던 푸딩이 떨어져 범인으로 몰렸어요.', ex: '내가 지나가자마자 화분이 넘어진 건 우연이야, 까마귀 날자 배 떨어진 거라고!', b: '배' },
+      { id: 18, ch: 'ㄱ', t: '꿩 먹고 알 먹기', m: '한 가지 일을 했는데 두 가지 이상의 좋은 이익을 동시에 얻는다는 뜻이에요.', s: '자전거를 타고 심부름을 다녀왔더니 용돈도 받고 운동도 되었어요.', ex: '영어 만화책을 읽으면 재미도 있고 공부도 되니 꿩 먹고 알 먹기네.', b: '알' },
+
+      // ㄴ,ㄷ (19~37)
+      { id: 19, ch: 'ㄴㄷ', t: '남의 손의 떡은 커 보인다', m: '내 것과 똑같거나 비슷해도 다른 사람이 가진 것이 훨씬 더 좋아 보인다는 뜻이에요.', s: '똑같은 급식인데도 두야는 옆 친구 식판의 돈까스가 더 커 보여서 부러워해요.', ex: '내 필통도 예쁜데 자꾸 친구 것만 부러워하는 걸 보니 남의 손의 떡은 커 보이나 봐.', b: '떡' },
+      { id: 20, ch: 'ㄴㄷ', t: '남의 잔치에 감 놓아라 배 놓아라 한다', m: '자기 일도 아닌데 남이 하는 일에 쓸데없이 이래라저래라 간섭한다는 뜻이에요.', s: '래야가 그림을 그리고 있는데 지나가던 뽀기가 색칠까지 참견을 해요.', ex: '내가 알아서 할 테니까 남의 잔치에 감 놓아라 배 놓아라 하지 마.', b: '잔치' },
+      { id: 21, ch: 'ㄴㄷ', t: '낫 놓고 기역 자도 모른다', m: '아주 쉽고 기본적인 글자나 상식조차 알지 못할 만큼 아는 것이 없다는 뜻이에요.', s: '컴퓨터 단축키가 너무 쉬운데도 두야가 하나도 모르고 쩔쩔매고 있어요.', ex: '이건 기본 중의 기본인데 모르면 낫 놓고 기역 자도 모르는 셈이지.', b: '기역' },
+      { id: 22, ch: 'ㄴㄷ', t: '낮말은 새가 듣고 밤말은 쥐가 듣는다', m: '아무도 없는 곳에서 한 비밀 이야기라도 결국 누군가 듣게 되니 말조심해야 한다는 뜻이에요.', s: '복도에서 몰래 친구 험담을 했는데 담임 선생님이 다 듣고 계셨어요!', ex: '비밀 얘기라도 함부로 하면 안 돼, 낮말은 새가 듣고 밤말은 쥐가 듣는다잖아.', b: '새' },
+      { id: 23, ch: 'ㄴㄷ', t: '내 코가 석 자', m: '지금 내 사정이 너무 급하고 어려워서 다른 사람을 도와줄 여유가 전혀 없다는 뜻이에요.', s: '숙제를 하나도 못 끝낸 찹이에게 뽀기가 자기 숙제도 도와달라고 부탁해요.', ex: '나도 내일 발표 준비하느라 내 코가 석 자라서 지금은 못 도와줘.', b: '석 자' },
+      { id: 24, ch: 'ㄴㄷ', t: '누워서 침 뱉기', m: '남을 해치려고 한 행동이 결국 자기 자신에게 나쁜 결과로 되돌아온다는 뜻이에요.', s: '친구 의자에 장난으로 테이프를 붙였다가 자기가 깜빡하고 거기에 앉아 버렸어요.', ex: '우리 반을 깎아내리면 결국 나도 창피해지는 거라 누워서 침 뱉기야.', b: '침' },
+      { id: 25, ch: 'ㄴㄷ', t: '다 된 죽에 코 빠뜨린다', m: '거의 다 성공해서 끝날 즈음에 실수를 해서 모든 일을 망쳐 버린다는 뜻이에요.', s: '공들여 만든 도화지 그림을 다 그리고 나서 물통을 엎질러 버렸어요.', ex: '마지막 한 문제만 꼼꼼히 봤어도 100점인데, 다 된 죽에 코 빠뜨렸네.', b: '코' },
+      { id: 26, ch: 'ㄴㄷ', t: '달도 차면 기운다', m: '무엇이든 가장 잘나가던 때가 지나면 조금씩 줄어들거나 기울기 마련이라는 뜻이에요.', s: '계속 1등만 하던 모네 팀도 방심하자 결국 다음 경기에서 지고 말았어요.', ex: '지금 잘된다고 자만하면 안 돼. 달도 차면 기운다고 했어.', b: '기운다' },
+      { id: 27, ch: 'ㄴㄷ', t: '달면 삼키고 쓰면 뱉는다', m: '자기에게 좋을 때는 가까이하고, 힘들거나 불리해지면 모른 척 외면한다는 뜻이에요.', s: '준비물을 빌릴 때만 쎄세에게 친한 척하고 정작 청소할 땐 도망가는 친구!', ex: '어려울 때 도와줘야 진짜 친구지, 달면 삼키고 쓰면 뱉으면 안 되지.', b: '삼키고' },
+      { id: 28, ch: 'ㄴㄷ', t: '닭 잡아먹고 오리발 내민다', m: '분명히 자기가 나쁜 짓을 해 놓고도 시치미를 뚝 떼고 아닌 척 속인다는 뜻이에요.', s: '입가에 초콜릿을 잔뜩 묻힌 뽀기가 자기는 과자를 안 먹었다고 우겨요.', ex: '네가 깨뜨린 거 다 봤는데 닭 잡아먹고 오리발 내밀지 마.', b: '오리발' },
+      { id: 29, ch: 'ㄴㄷ', t: '닭 쫓던 개 지붕 쳐다보듯 한다', m: '열심히 노력하거나 쫓아가던 일이 실패로 끝나서 멍하니 바라만 보는 모습을 뜻해요.', s: '버스를 타려고 전력 질주했는데 눈앞에서 문이 닫혀 버린 두야!', ex: '우승을 눈앞에 두고 놓쳐서 닭 쫓던 개 지붕 쳐다보듯 허탈해졌어.', b: '지붕' },
+      { id: 30, ch: 'ㄴㄷ', t: '도둑이 제 발 저리다', m: '잘못을 저지른 사람은 누가 뭐라고 하지 않아도 혼자 불안해서 들킬까 봐 안절부절못한다는 뜻이에요.', s: '선생님이 칠판에 낙서한 사람을 찾자 찹이가 혼자 얼굴이 빨개졌어요.', ex: '아무 말도 안 했는데 왜 혼자 놀라니? 도둑이 제 발 저린 거 아니야?', b: '발' },
+      { id: 31, ch: 'ㄴㄷ', t: '돌다리도 두들겨 보고 건너라', m: '아무리 잘 알고 확실해 보이는 일이라도 실수하지 않도록 한 번 더 조심하고 확인하라는 뜻이에요.', s: '이미 다 푼 수학 시험지를 제출하기 전에 검산을 한 번 더 하는 모네!', ex: '쉬운 문제라도 돌다리도 두들겨 보고 건너라는 말처럼 꼭 다시 확인해.', b: '두들겨' },
+      { id: 32, ch: 'ㄴㄷ', t: '되로 주고 말로 받는다', m: '남에게 조금만 잘못하거나 피해를 주었는데 나중에 훨씬 더 큰 보복이나 손해를 입는다는 뜻이에요.', s: '장난으로 친구 팔을 살짝 쳤다가 크게 화난 친구에게 혼쭐이 났어요.', ex: '작은 거짓말을 했다가 믿음을 다 잃었으니 되로 주고 말로 받은 셈이지.', b: '말' },
+      { id: 33, ch: 'ㄴㄷ', t: '될성부른 나무는 떡잎부터 알아본다', m: '크게 훌륭하게 자랄 사람은 어릴 때부터 남다른 재능과 성실함이 보인다는 뜻이에요.', s: '1학년 때부터 매일 독서 노트를 쓰던 래야가 전국 글짓기 대회에서 상을 탔어요.', ex: '어릴 때부터 그렇게 착실한 걸 보니 될성부른 나무는 떡잎부터 알아본다더니 딱 맞네.', b: '떡잎' },
+      { id: 34, ch: 'ㄴㄷ', t: '등잔 밑이 어둡다', m: '멀리 있는 것은 잘 보면서 오히려 내 바로 가까이에 있는 것은 잘 알아차리지 못한다는 뜻이에요.', s: '안경을 어디에 뒀는지 온 집안을 뒤졌는데 알고 보니 자기 머리 위에 얹혀 있었어요.', ex: '책상 바로 옆에 있던 지우개를 못 찾고 헤맸네. 정말 등잔 밑이 어둡다.', b: '어둡다' },
+      { id: 35, ch: 'ㄴㄷ', t: '떡 줄 사람은 생각도 않는데 김칫국부터 마신다', m: '상대방은 줄 생각도 없는데 혼자 미리 기대하고 앞서서 행동한다는 뜻이에요.', s: '아직 생일 파티에 초대받지도 않았는데 찹이가 벌써 선물 고를 생각을 해요.', ex: '아직 합격 발표도 안 났는데 여행 계획부터 세우니? 김칫국부터 마시지 마.', b: '김칫국' },
+      { id: 36, ch: 'ㄴㄷ', t: '똥 묻은 개가 겨 묻은 개 나무란다', m: '자기가 훨씬 더 큰 잘못을 저질러 놓고도 남의 작은 허물을 탓하며 꾸짖는다는 뜻이에요.', s: '방이 발 디딜 틈 없이 어질러진 뽀기가 동생에게 장난감 하나 안 치웠다고 잔소리해요.', ex: '네 책상부터 치우고 말해, 똥 묻은 개가 겨 묻은 개 나무란다더니.', b: '겨' },
+      { id: 37, ch: 'ㄴㄷ', t: '뛰는 놈 위에 나는 놈 있다', m: '아무리 뛰어나고 잘하는 사람이라도 세상에는 그보다 훨씬 더 대단한 사람이 있다는 뜻이에요.', s: '우리 반 달리기 1등인 찹이도 시 대표 대회에 나가니 더 빠른 친구들이 많았어요.', ex: '자만하지 말고 계속 연습해야 해, 뛰는 놈 위에 나는 놈 있잖아.', b: '나는' },
+
+      // ㅁ,ㅂ (38~61)
+      { id: 38, ch: 'ㅁㅂ', t: '마른하늘에 날벼락이다', m: '전혀 예상하지 못했던 큰일이나 나쁜 일이 갑작스럽게 닥쳤다는 뜻이에요.', s: '소풍 가는 날 아침에 갑자기 폭우가 쏟아져서 소풍이 취소되어 버렸어요.', ex: '아무 잘못도 안 했는데 벌을 받게 되다니 마른하늘에 날벼락이 따로 없네.', b: '날벼락' },
+      { id: 39, ch: 'ㅁㅂ', t: '말이 씨가 된다', m: '늘 입버릇처럼 하는 말이 나중에는 정말로 현실이 되어 일어날 수 있으니 좋은 말을 하라는 뜻이에요.', s: '자꾸 "나 감기 걸릴 것 같아"라고 말하던 두야가 정말로 감기에 걸렸어요.', ex: '안 된다고 자꾸 말하면 말이 씨가 된다니까, 할 수 있다고 말해 보자.', b: '씨' },
+      { id: 40, ch: 'ㅁㅂ', t: '말 한마디로 천 냥 빚을 갚는다', m: '말을 따뜻하고 지혜롭게 잘하면 아주 어렵고 큰 문제도 해결할 수 있다는 뜻이에요.', s: '실수로 친구 물건을 떨어뜨렸을 때 진심으로 정중하게 사과해 금세 화해했어요.', ex: '고맙다는 따뜻한 한마디가 큰 힘이 되잖아, 말 한마디로 천 냥 빚을 갚는 거야.', b: '천 냥' },
+      { id: 41, ch: 'ㅁㅂ', t: '모르면 약이요 아는 게 병', m: '차라리 모르는 것이 마음이 편한데, 어설프게 알기 때문에 오히려 걱정이 늘어난다는 뜻이에요.', s: '미리 시험 점수를 알게 된 쎄세가 집에 가는 내내 엄마 눈치를 보며 걱정해요.', ex: '괜히 뒷이야기를 알아서 마음만 불편해졌네. 모르면 약이요 아는 게 병이라더니.', b: '약' },
+      { id: 42, ch: 'ㅁㅂ', t: '목마른 사람이 우물 판다', m: '가장 급하고 꼭 필요한 사람이 직접 나서서 해결하려고 움직이게 된다는 뜻이에요.', s: '반에서 축구 시합이 너무 하고 싶은 찹이가 직접 친구들을 모으고 경기장을 잡았어요.', ex: '아무도 안 나서면 네가 먼저 준비해야지, 목마른 사람이 우물 판다고 하잖아.', b: '우물' },
+      { id: 43, ch: 'ㅁㅂ', t: '못 먹는 감 찔러나 본다', m: '어차피 자기가 가질 수 없는 것이라면 남도 못 가지게 괜히 심술을 부려 망친다는 뜻이에요.', s: '자기 팀이 못 이길 것 같자 뽀기가 경기 공을 멀리 차 버렸어요.', ex: '자기도 못 하면서 친구가 잘하는 걸 방해하면 못 먹는 감 찔러나 보는 심보지.', b: '감' },
+      { id: 44, ch: 'ㅁㅂ', t: '무쇠도 갈면 바늘 된다', m: '아무리 어렵고 힘들어 보이는 일이라도 포기하지 않고 꾸준히 노력하면 결국 이룰 수 있다는 뜻이에요.', s: '처음엔 한자도 모르던 모네가 매일 한 글자씩 써서 한자 급수 시험에 붙었어요.', ex: '조금 느려도 매일 연습해 보자. 무쇠도 갈면 바늘 된다잖아.', b: '바늘' },
+      { id: 45, ch: 'ㅁㅂ', t: '물에 빠진 놈 건져 놓으니 보따리 내놓으라 한다', m: '힘들 때 도와주었더니 고마워하기는커녕 오히려 더 많은 것을 요구하며 생떼를 부린다는 뜻이에요.', s: '연필을 빌려주었더니 이번엔 새 지우개까지 내놓으라고 조르는 친구!', ex: '숙제 도와줬더니 아예 다 해 달라고 하네. 물에 빠진 놈 건져 놓으니 보따리 내놓으라 한다더니.', b: '보따리' },
+      { id: 46, ch: 'ㅁㅂ', t: '미꾸라지 한 마리가 온 웅덩이를 흐려 놓는다', m: '한 사람의 나쁜 행동 때문에 여러 사람이 함께 피해를 보거나 전체 분위기가 나빠진다는 뜻이에요.', s: '모두 조용히 책 읽는 도서관에서 한 친구가 떠들어서 반 전체가 주의를 받았어요.', ex: '한 명만 규칙을 안 지켜도 우리 팀 전체가 손해야. 미꾸라지 한 마리가 온 웅덩이를 흐려 놓잖아.', b: '웅덩이' },
+      { id: 47, ch: 'ㅁㅂ', t: '미운 아이 떡 하나 더 준다', m: '미운 사람일수록 오히려 더 잘해 주어서 마음을 돌리고 사이좋게 지내는 것이 좋다는 뜻이에요.', s: '자꾸 장난치며 괴롭히던 친구에게 래야가 먼저 웃으며 사탕을 건네자 친구도 미안해했어요.', ex: '화가 나더라도 미운 아이 떡 하나 더 준다는 마음으로 먼저 다정하게 대해 보자.', b: '떡' },
+      { id: 48, ch: 'ㅁㅂ', t: '믿는 도끼에 발등 찍힌다', m: '가장 믿고 의지했던 사람에게 오히려 배신을 당하거나 큰 실망을 하게 된다는 뜻이에요.', s: '비밀을 꼭 지켜 줄 거라 믿었던 절친이 다른 친구들에게 소문을 내 버렸어요.', ex: '제일 믿었던 팀원이 약속을 어겨서 믿는 도끼에 발등 찍힌 기분이야.', b: '발등' },
+      { id: 49, ch: 'ㅁㅂ', t: '밑 빠진 독에 물 붓기', m: '아무리 힘과 시간을 들여 노력해도 보람이나 결과가 남지 않는 헛수고라는 뜻이에요.', s: '정리한 지 1분 만에 동생이 장난감을 다시 다 쏟아 놓아서 끝이 없어요.', ex: '집중 안 하고 딴짓하면서 책만 펴 놓으면 밑 빠진 독에 물 붓기야.', b: '독' },
+      { id: 50, ch: 'ㅁㅂ', t: '바늘 가는 데 실 간다', m: '둘 사이가 너무 친하거나 꼭 필요해서 언제나 함께 붙어 다닌다는 뜻이에요.', s: '찹이와 두야는 등교할 때도, 점심시간에도 늘 단짝처럼 붙어 다녀요.', ex: '둘은 어딜 가든 꼭 같이 있네, 바늘 가는 데 실 간다더니.', b: '실' },
+      { id: 51, ch: 'ㅁㅂ', t: '바늘 도둑이 소도둑 된다', m: '작은 나쁜 버릇이나 잘못을 고치지 않고 내버려 두면 점점 더 큰 잘못을 저지르게 된다는 뜻이에요.', s: '친구 지우개 하나 슬쩍 가져간 걸 별일 아니라고 넘기면 큰일이 날 수 있어요.', ex: '사소한 거짓말도 바로 고쳐야 해, 바늘 도둑이 소도둑 된다잖아.', b: '소도둑' },
+      { id: 52, ch: 'ㅁㅂ', t: '발 없는 말이 천 리 간다', m: '말은 발이 없지만 사람들 입을 통해 아주 멀리, 그리고 빠르게 퍼져 나간다는 뜻이에요.', s: '아침에 교실에서 한 작은 칭찬이 오후가 되니 옆 반 친구들까지 다 알고 있었어요.', ex: '소문은 순식간에 퍼지니까 항상 조심해야 해, 발 없는 말이 천 리 간다잖아.', b: '천 리' },
+      { id: 53, ch: 'ㅁㅂ', t: '방귀 뀐 놈이 성낸다', m: '자기가 잘못해 놓고도 미안해하기는커녕 오히려 남에게 큰소리를 치며 화를 낸다는 뜻이에요.', s: '복도를 뛰다가 부딪쳐 놓고 뽀기가 앞을 안 보고 다닌다고 화를 내요.', ex: '약속 시간에 늦은 건 너인데 왜 네가 화내니? 방귀 뀐 놈이 성낸다더니.', b: '성낸다' },
+      { id: 54, ch: 'ㅁㅂ', t: '배보다 배꼽이 더 크다', m: '주된 것보다 딸려 있는 부수적인 것에 돈이나 힘이 훨씬 더 많이 들어간다는 뜻이에요.', s: '5천 원짜리 공책을 사러 택시를 타고 1만 원을 내고 갔다 왔어요.', ex: '선물은 만 원인데 포장 상자가 이만 원이면 배보다 배꼽이 더 큰 거지.', b: '배꼽' },
+      { id: 55, ch: 'ㅁㅂ', t: '백지장도 맞들면 낫다', m: '아무리 쉽고 가벼운 일이라도 혼자 하는 것보다 여럿이 힘을 합쳐 함께 하면 훨씬 쉽다는 뜻이에요.', s: '무거운 우유 상자를 두야와 찹이가 양쪽에서 같이 드니 금방 옮겼어요.', ex: '우리 모둠이 다 같이 힘을 모으면 금방 끝날 거야, 백지장도 맞들면 낫잖아.', b: '맞들면' },
+      { id: 56, ch: 'ㅁㅂ', t: '벼 이삭은 익을수록 고개를 숙인다', m: '실력이 뛰어나고 훌륭한 사람일수록 잘난 척하지 않고 더욱 겸손해진다는 뜻이에요.', s: '피아노 콩쿠르 대상을 받은 쎄세는 친구들에게도 늘 배우는 자세로 친절해요.', ex: '상을 받았다고 뽐내지 않는 걸 보니 벼 이삭은 익을수록 고개를 숙인다더니 멋지다.', b: '고개' },
+      { id: 57, ch: 'ㅁㅂ', t: '벼룩도 낯짝이 있다', m: '아무리 염치없는 사람이라도 최소한의 부끄러움이나 체면은 알아야 한다는 뜻이에요.', s: '매일 친구 간식만 뺏어 먹던 뽀기도 이번엔 미안했는지 슬쩍 양보했어요.', ex: '맨날 공짜로 얻어먹기만 하면 안 되지, 벼룩도 낯짝이 있다잖아.', b: '낯짝' },
+      { id: 58, ch: 'ㅁㅂ', t: '병 주고 약 준다', m: '남에게 나쁜 일이나 상처를 준 뒤에 겉으로는 도와주는 척하며 위로한다는 뜻이에요.', s: '일부러 찹이의 공을 차 버린 뒤에 미안하다며 밴드를 붙여 주는 뽀기!', ex: '마음 아프게 말하고 이제 와서 다정한 척하다니, 병 주고 약 주는 거야?', b: '약' },
+      { id: 59, ch: 'ㅁㅂ', t: '보고 못 먹는 것은 그림의 떡', m: '아무리 좋아 보이고 가지고 싶어도 내 것이 될 수 없어서 소용이 없다는 뜻이에요.', s: '텔레비전에 나온 맛있는 케이크는 볼 수만 있고 먹을 수 없으니 아쉬워요.', ex: '장난감 가게 진열대에만 있고 품절이라 살 수 없으니 그림의 떡이네.', b: '그림' },
+      { id: 60, ch: 'ㅁㅂ', t: '빈 수레가 요란하다', m: '실속이나 실력이 없는 사람일수록 오히려 겉으로 크게 떠벌리며 자랑한다는 뜻이에요.', s: '공부는 하나도 안 한 뽀기가 자기가 이번 시험 1등 할 거라고 큰소리를 쳐요.', ex: '실력 있는 사람은 조용히 준비해. 빈 수레가 요란하다고 떠벌리지 마.', b: '요란하다' },
+      { id: 61, ch: 'ㅁㅂ', t: '빛 좋은 개살구', m: '겉모습만 번지르르하고 예쁘지 실제로는 내용이나 맛이 형편없다는 뜻이에요.', s: '포장지가 엄청 화려해서 산 과자인데 막상 열어 보니 양도 적고 맛이 없어요.', ex: '표지만 멋지고 내용은 재미없다면 빛 좋은 개살구지 뭐.', b: '개살구' },
+
+      // ㅅ,ㅇ (62~83)
+      { id: 62, ch: 'ㅅㅇ', t: '사공이 많으면 배가 산으로 간다', m: '여럿이 자기 주장만 내세우며 간섭하면 일이 제대로 되지 않고 엉뚱한 방향으로 간다는 뜻이에요.', s: '모둠 만들기 시간에 네 명이 각자 다른 의견을 고집하다가 아무것도 못 만들었어요.', ex: '다들 자기 말만 하면 어떡해, 사공이 많으면 배가 산으로 간다잖아.', b: '산' },
+      { id: 63, ch: 'ㅅㅇ', t: '서당 개 삼 년이면 풍월을 읊는다', m: '특별히 배우지 않아도 그 분야에 오래 있고 자주 보고 들으면 저절로 익숙해지고 실력이 는다는 뜻이에요.', s: '형 옆에서 매일 영어 동요를 듣던 동생이 어느새 영어로 인사말을 따라 해요.', ex: '매일 누나 피아노 치는 걸 보더니 악보도 읽네? 서당 개 삼 년이면 풍월을 읊는다더니.', b: '풍월' },
+      { id: 64, ch: 'ㅅㅇ', t: '세 살 버릇 여든까지 간다', m: '어릴 때 몸에 밴 습관은 나이가 들어서도 쉽게 고쳐지지 않고 오래간다는 뜻이에요.', s: '어릴 때부터 손 씻기와 정리 정돈을 습관 들인 모네는 커서도 깔끔해요.', ex: '다리를 떠는 습관은 지금 바로 고치자, 세 살 버릇 여든까지 간대.', b: '여든' },
+      { id: 65, ch: 'ㅅㅇ', t: '소 잃고 외양간 고친다', m: '미리 조심하지 않아서 큰 실수나 손해를 본 뒤에야 뒤늦게 대책을 세운다는 뜻이에요.', s: '우산을 안 챙겨 비를 흠뻑 맞고 감기에 걸린 뒤에야 비옷을 사 왔어요.', ex: '숙제 다 밀리고 나서 후회하면 소 잃고 외양간 고치는 격이지.', b: '외양간' },
+      { id: 66, ch: 'ㅅㅇ', t: '쇠귀에 경 읽기', m: '아무리 좋은 말로 가르치고 일러주어도 알아듣지 못하거나 들으려 하지 않는다는 뜻이에요.', s: '찹이에게 게임 그만하고 자라고 열 번이나 말했는데 전혀 듣지 않아요.', ex: '아무리 설명해도 딴생각만 하니 쇠귀에 경 읽기네.', b: '경' },
+      { id: 67, ch: 'ㅅㅇ', t: '쇠뿔도 단김에 빼랬다', m: '어떤 일을 하려고 마음먹었으면 미루지 말고 생각이 난 그 자리에서 바로 실행하라는 뜻이에요.', s: '방학 숙제를 내일로 미루려던 두야가 마음먹은 김에 오늘 다 끝내기로 했어요.', ex: '청소하기로 결심했으면 지금 당장 시작하자, 쇠뿔도 단김에 빼랬잖아!', b: '단김' },
+      { id: 68, ch: 'ㅅㅇ', t: '수박 겉 핥기', m: '어떤 일의 속뜻이나 중요한 내용은 모른 채 겉모습만 대충 건드리고 넘어간다는 뜻이에요.', s: '책을 한 권 다 읽었다고 했는데 주인공 이름도 모르고 그림만 넘겨 보았어요.', ex: '단어 뜻도 모르고 줄만 긋는 건 수박 겉 핥기식 공부야.', b: '겉' },
+      { id: 69, ch: 'ㅅㅇ', t: '숭어가 뛰니까 망둥이도 뛴다', m: '자신의 처지나 실력은 생각하지 않고 남이 하는 걸 무턱대고 따라 한다는 뜻이에요.', s: '체력이 좋은 래야가 윗몸일으키기 50개를 하자 뽀기도 무리해서 따라 하다가 배가 아파요.', ex: '남이 한다고 무조건 따라 하지 마, 숭어가 뛰니까 망둥이도 뛰는 꼴이야.', b: '망둥이' },
+      { id: 70, ch: 'ㅅㅇ', t: '식은 죽 먹기', m: '불 필요 없이 후루룩 마실 수 있는 식은 죽처럼 아주 쉽고 간단한 일이라는 뜻이에요.', s: '구구단 외우기를 열심히 한 찹이에게 2단 문제는 정말 식은 죽 먹기예요.', ex: '이 정도 퍼즐 맞추기는 나한테 식은 죽 먹기지!', b: '죽' },
+      { id: 71, ch: 'ㅅㅇ', t: '신선놀음에 도낏자루 썩는 줄 모른다', m: '너무 재미있는 일에 푹 빠져서 시간이 얼마나 지났는지조차 까맣게 잊어버린다는 뜻이에요.', s: '만화책을 읽다 보니 어느새 해가 지고 저녁 시간이 다 되어 버렸어요.', ex: '게임에 빠져서 학원 시간까지 놓쳤니? 신선놀음에 도낏자루 썩는 줄 모른다더니.', b: '도낏자루' },
+      { id: 72, ch: 'ㅅㅇ', t: '아니 땐 굴뚝에 연기 나랴', m: '아무런 이유나 원인이 없는데 저절로 소문이나 결과가 생길 리는 없다는 뜻이에요.', s: '교실에 맛있는 빵 냄새가 솔솔 나는 걸 보니 누군가 몰래 빵을 가져온 게 분명해요.', ex: '계속 그런 이야기가 나오는 걸 보면 아니 땐 굴뚝에 연기 날 리가 없지.', b: '연기' },
+      { id: 73, ch: 'ㅅㅇ', t: '아닌 밤중에 홍두깨', m: '아무런 예고도 없이 갑작스럽고 엉뚱한 일을 당하거나 이상한 말을 꺼낸다는 뜻이에요.', s: '조용히 수학 문제를 풀고 있는데 갑자기 뽀기가 춤을 추기 시작했어요.', ex: '자다가 갑자기 아이스크림 먹자니, 아닌 밤중에 홍두깨도 유분수지.', b: '홍두깨' },
+      { id: 74, ch: 'ㅅㅇ', t: '어물전 망신은 꼴뚜기가 시킨다', m: '못나고 부족한 사람 하나가 그 모임이나 집단 전체의 체면을 깎아내린다는 뜻이에요.', s: '우리 반이 모두 예의 바른데 한 친구가 장난을 쳐서 반 전체가 혼났어요.', ex: '대표로 나왔으면 행동을 조심해야지, 어물전 망신은 꼴뚜기가 시킨다잖아.', b: '꼴뚜기' },
+      { id: 75, ch: 'ㅅㅇ', t: '언 발에 오줌 누기', m: '당장은 급한 불을 끈 것 같지만 조금만 지나면 상황이 더 나빠지는 임시방편을 뜻해요.', s: '숙제를 대충 베껴 내면 오늘은 넘어가겠지만 시험 때는 하나도 못 풀게 돼요.', ex: '근본적인 해결책 없이 대충 덮어 두면 언 발에 오줌 누기일 뿐이야.', b: '오줌' },
+      { id: 76, ch: 'ㅅㅇ', t: '열 번 찍어 아니 넘어가는 나무 없다', m: '아무리 어렵고 완고한 일이나 마음이라도 포기하지 않고 계속 노력하면 결국 이루어진다는 뜻이에요.', s: '줄넘기 2단 뛰기를 아홉 번 실패했지만 열 번째 도전에 드디어 성공했어요!', ex: '한 번 안 된다고 포기하지 마, 열 번 찍어 아니 넘어가는 나무 없다잖아.', b: '나무' },
+      { id: 77, ch: 'ㅅㅇ', t: '오르지 못할 나무는 쳐다보지도 마라', m: '자기 능력이나 형편에 도저히 맞지 않고 이룰 수 없는 일은 처음부터 욕심내지 말라는 뜻이에요.', s: '아직 자전거도 못 타는데 두 발 외발자전거 묘기를 바로 하겠다고 우기는 두야!', ex: '기초부터 차근차근 배워야지, 오르지 못할 나무는 쳐다보지도 말라고 했어.', b: '나무' },
+      { id: 78, ch: 'ㅅㅇ', t: '우물 안 개구리', m: '좁은 세상에만 갇혀 지내며 바깥의 넓고 다양한 세상을 알지 못하면서 자기가 최고인 줄 안다는 뜻이에요.', s: '동네에서만 1등 하던 뽀기가 더 넓은 세상에 나가 보니 잘하는 친구가 정말 많았어요.', ex: '다양한 책도 읽고 새로운 경험도 해야 우물 안 개구리가 되지 않아.', b: '개구리' },
+      { id: 79, ch: 'ㅅㅇ', t: '우물을 파도 한 우물을 파라', m: '이것저것 기웃거리지 말고 한 가지 목표를 정했으면 끝까지 꾸준히 파고들어야 성공한다는 뜻이에요.', s: '피아노, 태권도, 미술을 한 달씩만 하고 자꾸 바꾸는 대신 하나를 꾸준히 배워요.', ex: '작가라는 꿈을 정했으면 우물을 파도 한 우물을 파는 게 좋아.', b: '우물' },
+      { id: 80, ch: 'ㅅㅇ', t: '원수는 외나무다리에서 만난다', m: '피하고 싶고 다시 보기 싫은 사람일수록 꼭 피할 수 없는 곳에서 마주치게 된다는 뜻이에요.', s: '어제 다퉜던 옆 반 친구와 오늘 학원 엘리베이터에서 딱 마주치고 말았어요.', ex: '그렇게 안 만나고 싶었는데 또 마주치다니, 원수는 외나무다리에서 만난다더니.', b: '외나무다리' },
+      { id: 81, ch: 'ㅅㅇ', t: '원숭이도 나무에서 떨어진다', m: '아무리 어떤 일에 능숙하고 뛰어난 전문가라도 가끔은 실수할 수 있다는 뜻이에요.', s: '암산 왕인 모네가 이번 받아쓰기 시험에서 쉬운 덧셈 하나를 실수로 틀렸어요.', ex: '실수했다고 너무 속상해하지 마, 원숭이도 나무에서 떨어질 때가 있잖아.', b: '원숭이' },
+      { id: 82, ch: 'ㅅㅇ', t: '윗물이 맑아야 아랫물이 맑다', m: '선배나 어른, 윗사람이 먼저 바르게 행동해야 아랫사람이나 후배들도 보고 바르게 따라 한다는 뜻이에요.', s: '6학년 형들이 복도에서 질서를 잘 지키니 1학년 동생들도 똑같이 따라 해요.', ex: '언니가 먼저 인사 잘하는 모습을 보여 줘야 동생도 배우지, 윗물이 맑아야 아랫물이 맑아.', b: '아랫물' },
+      { id: 83, ch: 'ㅅㅇ', t: '입에 쓴 약이 몸에 좋다', m: '당장은 듣기 싫고 쓰지만 진심이 담긴 충고나 힘든 연습이 결국 나에게 큰 도움이 된다는 뜻이에요.', s: '선생님의 따끔한 조언을 듣고 자세를 고쳤더니 글씨가 훨씬 예뻐졌어요.', ex: '잔소리처럼 들려도 너를 위한 말이니까 잘 새겨들어, 입에 쓴 약이 몸에 좋잖아.', b: '약' },
+
+      // ㅈ,ㅊ,ㅋ,ㅌ,ㅎ (84~100)
+      { id: 84, ch: 'ㅈㅎ', t: '자라 보고 놀란 가슴 솥뚜껑 보고 놀란다', m: '한 번 크게 놀라거나 무서운 경험을 하면 그와 조금만 비슷한 것을 봐도 겁을 먹는다는 뜻이에요.', s: '강아지에게 한 번 쫓긴 적이 있는 찹이가 하얀 솜뭉치만 봐도 깜짝 놀라요.', ex: '지난번에 매운 떡볶이 먹고 혼난 뒤로 빨간 음식만 봐도 겁나, 자라 보고 놀란 가슴 솥뚜껑 보고 놀란다더니.', b: '솥뚜껑' },
+      { id: 85, ch: 'ㅈㅎ', t: '작은 고추가 더 맵다', m: '몸집이 작거나 어려 보여도 실력과 힘이 훨씬 대단하고 야무진 사람을 가리키는 말이에요.', s: '반에서 키가 제일 작은 쎄세가 피구 경기에서 끝까지 살아남아 팀을 승리로 이끌었어요!', ex: '키가 작다고 얕보지 마, 작은 고추가 더 맵다고 달리기는 내가 1등이야.', b: '고추' },
+      { id: 86, ch: 'ㅈㅎ', t: '재주는 곰이 넘고 돈은 주인이 받는다', m: '정작 힘들게 일하고 수고한 사람은 따로 있는데 칭찬이나 이익은 다른 사람이 가로챈다는 뜻이에요.', s: '자료 조사는 래야가 밤새 다 했는데 발표만 한 뽀기가 칭찬을 독차지했어요.', ex: '내가 그림 다 그려 줬는데 상은 네가 받으면 재주는 곰이 넘고 돈은 주인이 받는 거잖아.', b: '곰' },
+      { id: 87, ch: 'ㅈㅎ', t: '쥐구멍에도 볕 들 날 있다', m: '지금 아무리 힘들고 어려운 형편에 있더라도 언젠가는 꼭 좋은 날이 찾아온다는 뜻이에요.', s: '맨날 꼴찌만 하던 찹이 팀이 열심히 연습해 드디어 첫 승리를 거두었어요!', ex: '조금만 더 힘내자, 쥐구멍에도 볕 들 날 있다고 곧 좋은 소식이 올 거야.', b: '볕' },
+      { id: 88, ch: 'ㅈㅎ', t: '지렁이도 밟으면 꿈틀한다', m: '아무리 순하고 약해 보이는 사람이라도 지나치게 괴롭히면 참지 못하고 반항하게 된다는 뜻이에요.', s: '평소 화를 안 내던 순한 두야도 계속 장난치는 뽀기에게 정색하며 한마디 했어요.', ex: '아무리 착한 친구라도 너무 놀리면 안 돼, 지렁이도 밟으면 꿈틀한다고 하잖아.', b: '꿈틀' },
+      { id: 89, ch: 'ㅈㅎ', t: '짚신도 제짝이 있다', m: '아무리 부족해 보여도 세상에는 자기와 꼭 맞는 짝이나 친구가 반드시 있다는 뜻이에요.', s: '취향이 특이한 뽀기에게도 마음이 딱 맞는 단짝 친구가 생겼어요.', ex: '혼자라고 외로워하지 마, 짚신도 제짝이 있다고 곧 좋은 친구를 만날 거야.', b: '제짝' },
+      { id: 90, ch: 'ㅈㅎ', t: '참새가 방앗간을 그냥 지나치랴', m: '자기가 평소 무척 좋아하는 곳이나 맛있는 것 앞에서는 절대 그냥 지나치지 못한다는 뜻이에요.', s: '떡볶이 가게 앞을 지날 때마다 뽀기는 어김없이 발걸음을 멈춰요.', ex: '문구점 앞에 서서 안 들어가고 버틸 수 있겠어? 참새가 방앗간을 그냥 지나치랴.', b: '방앗간' },
+      { id: 91, ch: 'ㅈㅎ', t: '천 리 길도 한 걸음부터', m: '아무리 크고 멀어 보이는 목표라도 지금 할 수 있는 아주 작은 첫걸음부터 시작해야 이룰 수 있다는 뜻이에요.', s: '두꺼운 책 100권을 읽기로 결심한 찹이가 오늘 첫 장을 펼쳤어요.', ex: '어렵다고 망설이지 말고 오늘 단어 5개부터 외워 보자, 천 리 길도 한 걸음부터야.', b: '한 걸음' },
+      { id: 92, ch: 'ㅈㅎ', t: '콩 심은 데 콩 나고 팥 심은 데 팥 난다', m: '모든 일에는 반드시 원인에 따른 결과가 생기며, 좋은 노력을 해야 좋은 결과를 얻는다는 뜻이에요.', s: '매일 성실하게 연습한 쎄세에게 자연스럽게 좋은 성적이 따라왔어요.', ex: '노력한 만큼 결과가 나오는 법이지, 콩 심은 데 콩 나고 팥 심은 데 팥 난다잖아.', b: '팥' },
+      { id: 93, ch: 'ㅈㅎ', t: '콩으로 메주를 쑨다 해도 곧이 안 믿는다', m: '평소에 거짓말을 너무 자주 해서 나중에는 진짜 사실인 말을 해도 아무도 믿어 주지 않는다는 뜻이에요.', s: '만우절도 아닌데 맨날 장난치던 뽀기가 진짜 아파도 친구들이 안 믿어 줘요.', ex: '거짓말을 자주 하면 나중에 콩으로 메주를 쑨다 해도 곧이 안 믿는다니까.', b: '메주' },
+      { id: 94, ch: 'ㅈㅎ', t: '티끌 모아 태산', m: '아주 작고 보잘것없는 것이라도 꾸준히 모으고 또 모으면 나중에는 엄청나게 커진다는 뜻이에요.', s: '매일 저금통에 100원짜리 동전을 모았더니 1년 뒤에 멋진 자전거를 살 수 있었어요.', ex: '하루에 한 줄씩만 일기를 써도 1년이면 큰 책이 돼, 티끌 모아 태산이야.', b: '태산' },
+      { id: 95, ch: 'ㅈㅎ', t: '하늘이 무너져도 솟아날 구멍이 있다', m: '아무리 막막하고 불가능해 보이는 어려운 상황에서도 반드시 해결할 방법은 있다는 뜻이에요.', s: '발표 자료가 지워져서 큰일 날 뻔했지만 다행히 클라우드에 백업 파일이 있었어요!', ex: '포기하지 말고 방법을 찾아보자, 하늘이 무너져도 솟아날 구멍이 있다고 했어.', b: '구멍' },
+      { id: 96, ch: 'ㅈㅎ', t: '하룻강아지 범 무서운 줄 모른다', m: '아직 경험이 없고 철이 없어서 얼마나 위험하고 무서운 상대인지도 모르고 함부로 덤빈다는 뜻이에요.', s: '태권도 흰 띠를 갓 맨 동생이 검은 띠 형에게 대결을 신청해요.', ex: '잘 알지도 못하면서 함부로 덤비니 하룻강아지 범 무서운 줄 모른다더니.', b: '범' },
+      { id: 97, ch: 'ㅈㅎ', t: '호랑이도 제 말 하면 온다', m: '어떤 사람에 대한 이야기를 하고 있는데 마침 딱 그 사람이 눈앞에 나타날 때 쓰는 말이에요.', s: '래야와 두야가 찹이 이야기를 하고 있는데 교실 문을 열고 찹이가 들어왔어요!', ex: '어머, 지금 막 네 얘기하고 있었는데! 호랑이도 제 말 하면 온다더니.', b: '제 말' },
+      { id: 98, ch: 'ㅈㅎ', t: '호미로 막을 것을 가래로 막는다', m: '처음에 작을 때 쉽게 고칠 수 있었던 일을 미루다가 나중에 훨씬 큰 힘과 비용을 들여 수습한다는 뜻이에요.', s: '작은 충치가 생겼을 때 바로 치과에 안 가서 나중에 큰 치료를 받게 되었어요.', ex: '오해가 생겼을 때 바로 풀어야지, 호미로 막을 것을 가래로 막으면 힘들어.', b: '가래' },
+      { id: 99, ch: 'ㅈㅎ', t: '호박이 넝쿨째로 굴러 들어온다', m: '전혀 생각지도 못했던 아주 크고 좋은 행운이나 복이 한꺼번에 찾아왔다는 뜻이에요.', s: '응모한 독후감 대회에서 대상도 받고 부상으로 전집 세트까지 받았어요!', ex: '우승 상금에 장학금까지 받다니 정말 호박이 넝쿨째로 굴러 들어왔네!', b: '넝쿨' },
+      { id: 100, ch: 'ㅈㅎ', t: '황소 뒷걸음치다 쥐 잡는다', m: '실력이나 계획이 있어서가 아니라 어쩌다가 우연히 운이 좋아서 성공하거나 맞혔다는 뜻이에요.', s: '모르는 문제를 아무 번호나 찍었는데 하필 정답이라서 찹이가 깜짝 놀랐어요.', ex: '실력이 아니라 그냥 운으로 맞힌 거지, 황소 뒷걸음치다 쥐 잡는 격이야.', b: '쥐' }
+    ];
+
+    const CONSONANT_GROUPS = [
+      { id: 'all', label: '전체 (100)' },
+      { id: 'ㄱ', label: 'ㄱ (18)' },
+      { id: 'ㄴㄷ', label: 'ㄴ·ㄷ (19)' },
+      { id: 'ㅁㅂ', label: 'ㅁ·ㅂ (24)' },
+      { id: 'ㅅㅇ', label: 'ㅅ·ㅇ (22)' },
+      { id: 'ㅈㅎ', label: 'ㅈ~ㅎ (17)' }
+    ];
+
+    const PROFILES = {
+      junwoo: { id: 'junwoo', name: '준우', emoji: '👦', color: '#1DA1F2' },
+      jiwoo: { id: 'jiwoo', name: '지우', emoji: '👧', color: '#FB7185' }
+    };
+
+    // ==========================================
+    // 2. State, Dual Profiles & UI Persistence
+    // ==========================================
+    const STORAGE_KEY = 'chabi_proverbs_pwa_v2';
+    const LEGACY_STORAGE_KEY = 'chabi_proverbs_pwa_v1';
+    let deferredInstallPrompt = null;
+
+    function createEmptyProfileData() {
+      return {
+        masteredIds: [],
+        favoriteIds: [],
+        wrongIds: [],
+        practicedIds: [],
+        bestStreak: 0,
+        ui: {
+          activeTab: 'explore',
+          consonant: 'all',
+          filterStatus: 'all',
+          searchQuery: '',
+          quizMode: 'meaning',
+          quizScope: 'all',
+          practiceSelectedId: null
+        }
+      };
+    }
+
+    const store = {
+      currentProfile: 'junwoo',
+      soundEnabled: true,
+      profiles: {
+        junwoo: createEmptyProfileData(),
+        jiwoo: createEmptyProfileData()
+      }
+    };
+
+    const state = {
+      activeTab: 'explore',
+      consonant: 'all',
+      filterStatus: 'all',
+      searchQuery: '',
+      masteredIds: new Set(),
+      favoriteIds: new Set(),
+      wrongIds: new Set(),
+      practicedIds: new Set(),
+      bestStreak: 0,
+      soundEnabled: true,
+      modalId: null,
+      modalRevealed: false,
+      modalDictation: '',
+      modalDictationResult: null,
+      quiz: {
+        mode: 'meaning', // meaning | blank | situation
+        scope: 'all',    // all | wrong | ㄱ | ㄴㄷ | ㅁㅂ | ㅅㅇ | ㅈㅎ
+        started: false,
+        questions: [],
+        currentIdx: 0,
+        score: 0,
+        streak: 0,
+        maxStreak: 0,
+        answered: false,
+        selectedOption: null,
+        finished: false
+      },
+      practice: {
+        selectedId: null,
+        inputVal: '',
+        checked: false,
+        isCorrect: false
+      }
+    };
+
+    function getActiveProfileMeta() {
+      return PROFILES[store.currentProfile] || PROFILES.junwoo;
+    }
+
+    function getActiveProfileData() {
+      if (!store.profiles[store.currentProfile]) {
+        store.profiles[store.currentProfile] = createEmptyProfileData();
+      }
+      return store.profiles[store.currentProfile];
+    }
+
+    function restoreUIStateFromProfile() {
+      const p = getActiveProfileData();
+      state.masteredIds = new Set(Array.isArray(p.masteredIds) ? p.masteredIds : []);
+      state.favoriteIds = new Set(Array.isArray(p.favoriteIds) ? p.favoriteIds : []);
+      state.wrongIds = new Set(Array.isArray(p.wrongIds) ? p.wrongIds : []);
+      state.practicedIds = new Set(Array.isArray(p.practicedIds) ? p.practicedIds : []);
+      state.bestStreak = Number(p.bestStreak || 0);
+      state.soundEnabled = store.soundEnabled;
+
+      const ui = p.ui || {};
+      const validTabs = ['explore', 'quiz', 'practice', 'progress'];
+      state.activeTab = validTabs.includes(ui.activeTab) ? ui.activeTab : 'explore';
+      state.consonant = ui.consonant || 'all';
+      state.filterStatus = ui.filterStatus || 'all';
+      state.searchQuery = typeof ui.searchQuery === 'string' ? ui.searchQuery : '';
+      state.quiz.mode = ui.quizMode || 'meaning';
+      state.quiz.scope = ui.quizScope || 'all';
+      state.quiz.started = false;
+      state.quiz.finished = false;
+      state.practice.selectedId = ui.practiceSelectedId || null;
+      state.practice.inputVal = '';
+      state.practice.checked = false;
+    }
+
+    function persistUIState() {
+      const p = getActiveProfileData();
+      p.masteredIds = [...state.masteredIds];
+      p.favoriteIds = [...state.favoriteIds];
+      p.wrongIds = [...state.wrongIds];
+      p.practicedIds = [...state.practicedIds];
+      p.bestStreak = state.bestStreak;
+      p.ui = {
+        activeTab: state.activeTab,
+        consonant: state.consonant,
+        filterStatus: state.filterStatus,
+        searchQuery: state.searchQuery,
+        quizMode: state.quiz.mode,
+        quizScope: state.quiz.scope,
+        practiceSelectedId: state.practice.selectedId
+      };
+      store.soundEnabled = state.soundEnabled;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      } catch (e) {}
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.currentProfile && PROFILES[parsed.currentProfile]) {
+            store.currentProfile = parsed.currentProfile;
+          }
+          if (typeof parsed.soundEnabled === 'boolean') {
+            store.soundEnabled = parsed.soundEnabled;
+          }
+          if (parsed.profiles) {
+            if (parsed.profiles.junwoo) store.profiles.junwoo = Object.assign(createEmptyProfileData(), parsed.profiles.junwoo);
+            if (parsed.profiles.jiwoo) store.profiles.jiwoo = Object.assign(createEmptyProfileData(), parsed.profiles.jiwoo);
+          }
+        } else {
+          // Migrate legacy v1 data smoothly to junwoo
+          const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+          if (legacy) {
+            const parsed = JSON.parse(legacy);
+            const jw = store.profiles.junwoo;
+            if (Array.isArray(parsed.masteredIds)) jw.masteredIds = parsed.masteredIds;
+            if (Array.isArray(parsed.favoriteIds)) jw.favoriteIds = parsed.favoriteIds;
+            if (Array.isArray(parsed.wrongIds)) jw.wrongIds = parsed.wrongIds;
+            if (Array.isArray(parsed.practicedIds)) jw.practicedIds = parsed.practicedIds;
+            if (typeof parsed.soundEnabled === 'boolean') store.soundEnabled = parsed.soundEnabled;
+          }
+        }
+      } catch (e) {}
+      restoreUIStateFromProfile();
+    }
+
+    function saveState() {
+      persistUIState();
+    }
+
+    function switchProfile(profileId) {
+      if (!PROFILES[profileId] || store.currentProfile === profileId) return;
+      persistUIState();
+      store.currentProfile = profileId;
+      restoreUIStateFromProfile();
+      persistUIState();
+      playTone('ok');
+      const meta = getActiveProfileMeta();
+      showToast(`${meta.emoji} ${meta.name} 모드로 바꿨어요! 오늘도 화이팅!`);
+      render();
+    }
+
+    // ==========================================
+    // 3. Audio (Web Audio SFX & Dual-Tier Korean TTS)
+    // ==========================================
+    let audioCtx = null;
+    function playTone(type) {
+      if (!state.soundEnabled) return;
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        if (!audioCtx) audioCtx = new Ctx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (type === 'ok') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.08);
+          osc.frequency.setValueAtTime(783.99, now + 0.16);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.36);
+        } else if (type === 'no') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.setValueAtTime(190, now + 0.12);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+          osc.start(now);
+          osc.stop(now + 0.29);
+        } else {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        }
+      } catch (e) {}
+    }
+
+    let cachedKoreanVoice = null;
+    let activeUtterance = null;
+    let activeSpeakAudio = null;
+    let speakWatchdog = null;
+    let speakDelayTimer = null;
+
+    function resolveKoreanVoice() {
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return cachedKoreanVoice;
+      const koVoices = voices.filter(v => {
+        const lang = (v.lang || '').toLowerCase().replace('_', '-');
+        return lang === 'ko-kr' || lang.startsWith('ko');
+      });
+      if (!koVoices.length) return null;
+      cachedKoreanVoice =
+        koVoices.find(v => /google|samsung|yuna|sora|heami|sunhi/i.test(v.name) && v.localService) ||
+        koVoices.find(v => v.localService) ||
+        koVoices.find(v => /google|samsung|yuna|sora|heami|sunhi/i.test(v.name)) ||
+        koVoices[0];
+      return cachedKoreanVoice;
+    }
+
+    if ('speechSynthesis' in window) {
+      resolveKoreanVoice();
+      if (window.speechSynthesis.addEventListener) {
+        window.speechSynthesis.addEventListener('voiceschanged', resolveKoreanVoice);
+      }
+    }
+
+    function normalizeSpeakText(text) {
+      return String(text || '').replace(/[·/]/g, ', ').replace(/\s+/g, ' ').trim();
+    }
+
+    function playFallbackTTS(cleanText, userTriggered) {
+      if (activeSpeakAudio) {
+        try { activeSpeakAudio.pause(); } catch (e) {}
+        activeSpeakAudio = null;
+      }
+      const audio = new Audio();
+      audio.referrerPolicy = 'no-referrer';
+      audio.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=${encodeURIComponent(cleanText.slice(0, 180))}`;
+      activeSpeakAudio = audio;
+      const p = audio.play && audio.play();
+      if (p && p.catch) {
+        p.catch(() => {
+          if (userTriggered) showToast('🔇 기기에서 한국어 음성 재생이 차단되었어요.');
+        });
+      }
+    }
+
+    function speakKorean(text, { userTriggered = false } = {}) {
+      if (!state.soundEnabled) {
+        if (userTriggered) showToast('🔇 음소거 상태예요! 상단 소리 버튼을 켜주세요.');
+        return;
+      }
+      const cleanText = normalizeSpeakText(text);
+      if (!cleanText) return;
+      clearTimeout(speakWatchdog);
+      clearTimeout(speakDelayTimer);
+      if (activeSpeakAudio) {
+        try { activeSpeakAudio.pause(); } catch (e) {}
+        activeSpeakAudio = null;
+      }
+
+      const synth = window.speechSynthesis;
+      if (!synth || typeof SpeechSynthesisUtterance === 'undefined') {
+        playFallbackTTS(cleanText, userTriggered);
+        return;
+      }
+      const voice = resolveKoreanVoice();
+      if ((synth.getVoices() || []).length > 0 && !voice) {
+        playFallbackTTS(cleanText, userTriggered);
+        return;
+      }
+
+      const doSpeak = () => {
+        if (synth.paused) synth.resume();
+        const u = new SpeechSynthesisUtterance(cleanText);
+        u.lang = 'ko-KR';
+        u.rate = 0.92;
+        u.pitch = 1.04;
+        if (voice) u.voice = voice;
+        let started = false;
+        let settled = false;
+        activeUtterance = u;
+        u.onstart = () => {
+          started = true;
+          clearTimeout(speakWatchdog);
+        };
+        u.onend = () => {
+          settled = true;
+          clearTimeout(speakWatchdog);
+          if (activeUtterance === u) activeUtterance = null;
+        };
+        u.onerror = (ev) => {
+          clearTimeout(speakWatchdog);
+          if (activeUtterance === u) activeUtterance = null;
+          if (ev && (ev.error === 'canceled' || ev.error === 'interrupted')) return;
+          if (!settled) {
+            settled = true;
+            playFallbackTTS(cleanText, userTriggered);
+          }
+        };
+        synth.speak(u);
+        if (synth.paused) synth.resume();
+        speakWatchdog = setTimeout(() => {
+          if (!started && !settled) {
+            settled = true;
+            try { synth.cancel(); } catch (e) {}
+            playFallbackTTS(cleanText, userTriggered);
+          }
+        }, 950);
+      };
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (synth.speaking || synth.pending) {
+        synth.cancel();
+        if (isIOS) doSpeak();
+        else speakDelayTimer = setTimeout(doSpeak, 65);
+      } else {
+        doSpeak();
+      }
+    }
+
+    // ==========================================
+    // 4. Helpers & Toast
+    // ==========================================
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.add('hidden'), 2400);
+    }
+
+    function normalizeKor(str) {
+      return (str || '').replace(/\s+/g, '').replace(/[.,!?'"~]/g, '').trim();
+    }
+
+    function getDailyProverbs() {
+      const d = new Date();
+      const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+      const idx1 = seed % PROVERBS.length;
+      const idx2 = (seed + 33) % PROVERBS.length;
+      const idx3 = (seed + 67) % PROVERBS.length;
+      return [PROVERBS[idx1], PROVERBS[idx2], PROVERBS[idx3]];
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function getRankInfo(masteredCount) {
+      if (masteredCount >= 100) return { title: '👑 국어 왕 중의 왕', next: 100 };
+      if (masteredCount >= 50) return { title: '🎓 속담 척척박사', next: 100 };
+      if (masteredCount >= 25) return { title: '🍡 찹이 단짝', next: 50 };
+      if (masteredCount >= 5) return { title: '🌱 새싹 탐험가', next: 25 };
+      return { title: '🐣 속담 입문자', next: 5 };
+    }
+
+    // ==========================================
+    // 5. Render Functions
+    // ==========================================
+    function updateHeaderUI() {
+      const meta = getActiveProfileMeta();
+      document.getElementById('heroMasteredCount').textContent = `${state.masteredIds.size} / ${PROVERBS.length}`;
+      document.getElementById('heroProfileBadge').textContent = `${meta.emoji} ${meta.name}의 속담 보물주머니`;
+      document.getElementById('soundIcon').textContent = state.soundEnabled ? '🔊' : '🔇';
+      document.getElementById('soundLabel').textContent = state.soundEnabled ? '소리 켜짐' : '소리 꺼짐';
+
+      const btnJw = document.getElementById('btnProfileJunwoo');
+      const btnJi = document.getElementById('btnProfileJiwoo');
+      btnJw.className = 'profile-btn' + (store.currentProfile === 'junwoo' ? ' active-junwoo' : '');
+      btnJi.className = 'profile-btn' + (store.currentProfile === 'jiwoo' ? ' active-jiwoo' : '');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const active = btn.dataset.tab === state.activeTab;
+        btn.className = active
+          ? 'tab-btn comic-btn px-3.5 py-2 rounded-xl text-sm font-extrabold whitespace-nowrap bg-[#FF6B4A] text-white'
+          : 'tab-btn comic-btn px-3.5 py-2 rounded-xl text-sm font-extrabold whitespace-nowrap bg-white text-[#222222] hover:bg-amber-50';
+      });
+
+      const hero = document.getElementById('heroSection');
+      if (state.activeTab === 'explore') hero.classList.remove('hidden');
+      else hero.classList.add('hidden');
+    }
+
+    function render() {
+      updateHeaderUI();
+      const container = document.getElementById('viewContainer');
+      if (state.activeTab === 'explore') renderExplore(container);
+      else if (state.activeTab === 'quiz') renderQuiz(container);
+      else if (state.activeTab === 'practice') renderPractice(container);
+      else renderProgress(container);
+    }
+
+    // --- Tab 1: Explore ---
+    function renderExplore(container) {
+      const q = state.searchQuery.trim().toLowerCase();
+      const filtered = PROVERBS.filter(p => {
+        if (state.consonant !== 'all' && p.ch !== state.consonant) return false;
+        if (state.filterStatus === 'mastered' && !state.masteredIds.has(p.id)) return false;
+        if (state.filterStatus === 'unlearned' && state.masteredIds.has(p.id)) return false;
+        if (state.filterStatus === 'favorite' && !state.favoriteIds.has(p.id)) return false;
+        if (q && !p.t.toLowerCase().includes(q) && !p.m.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      const consonantHTML = CONSONANT_GROUPS.map(g => {
+        const active = state.consonant === g.id;
+        return `<button type="button" data-ch="${g.id}" class="ch-btn comic-btn px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap ${
+          active ? 'bg-[#1DA1F2] text-white' : 'bg-white text-[#222222] hover:bg-sky-50'
+        }">${g.label}</button>`;
+      }).join('');
+
+      const statusOptions = [
+        { id: 'all', label: '전체 보기' },
+        { id: 'unlearned', label: '아직 안 외움' },
+        { id: 'mastered', label: '⭐ 외웠어요' },
+        { id: 'favorite', label: '❤️ 즐겨찾기' }
+      ];
+      const statusHTML = statusOptions.map(st => {
+        const active = state.filterStatus === st.id;
+        return `<button type="button" data-status="${st.id}" class="status-btn comic-btn px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap ${
+          active ? 'bg-[#FFE033] text-[#222222]' : 'bg-white text-slate-700 hover:bg-amber-50'
+        }">${st.label}</button>`;
+      }).join('');
+
+      const cardsHTML = filtered.length === 0
+        ? `<div class="col-span-full bg-white rounded-3xl comic-card p-10 text-center">
+             <div class="text-4xl mb-2">🔍</div>
+             <p class="font-extrabold text-[#222222] mb-1">조건에 맞는 속담이 없어요.</p>
+             <p class="text-xs text-slate-500">검색어를 지우거나 다른 자음 탭을 눌러 보세요.</p>
+           </div>`
+        : filtered.map(p => {
+            const isMastered = state.masteredIds.has(p.id);
+            const isFav = state.favoriteIds.has(p.id);
+            return `
+              <button type="button" data-open-id="${p.id}"
+                class="proverb-card text-left rounded-2xl p-4 card-shadow flex flex-col justify-between gap-2.5 ${isMastered ? 'bg-emerald-50' : 'bg-white hover:bg-amber-50/50'}">
+                <div class="flex items-center justify-between gap-2 w-full">
+                  <span class="text-xs font-black px-2 py-0.5 rounded-lg border border-[#222222] ${isMastered ? 'bg-emerald-300 text-[#222222]' : 'bg-[#FFE033] text-[#222222]'}">${String(p.id).padStart(2, '0')}번</span>
+                  <div class="flex items-center gap-1.5 text-sm">
+                    ${isMastered ? '<span title="외움">⭐</span>' : ''}
+                    ${isFav ? '<span title="즐겨찾기">❤️</span>' : ''}
+                  </div>
+                </div>
+                <h3 class="font-title text-lg text-[#222222] leading-snug">${escapeHtml(p.t)}</h3>
+                <p class="text-xs text-slate-600 line-clamp-2 font-medium">${escapeHtml(p.m)}</p>
+              </button>
+            `;
+          }).join('');
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="bg-white rounded-2xl p-3.5 comic-card space-y-3">
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <div class="relative flex-1">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
+                <input id="searchInput" type="text" value="${escapeHtml(state.searchQuery)}"
+                       placeholder="속담이나 뜻으로 검색해 보세요 (예: 호랑이, 떡, 노력)"
+                       class="w-full pl-9 pr-9 py-2.5 rounded-xl bg-amber-50/70 border-2 border-[#222222] text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#1DA1F2]" />
+                ${state.searchQuery ? '<button id="btnClearSearch" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-[#222222] font-black">✕</button>' : ''}
+              </div>
+              <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">${statusHTML}</div>
+            </div>
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 border-t-2 border-dashed border-amber-200">
+              ${consonantHTML}
+              <span class="ml-auto text-xs text-slate-600 font-black pl-2 shrink-0">${filtered.length}개</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            ${cardsHTML}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('searchInput').addEventListener('input', e => {
+        state.searchQuery = e.target.value;
+        persistUIState();
+        const pos = e.target.selectionStart;
+        renderExplore(container);
+        const inp = document.getElementById('searchInput');
+        if (inp) { inp.focus(); inp.setSelectionRange(pos, pos); }
+      });
+      const clearBtn = document.getElementById('btnClearSearch');
+      if (clearBtn) clearBtn.addEventListener('click', () => {
+        state.searchQuery = '';
+        persistUIState();
+        renderExplore(container);
+      });
+
+      container.querySelectorAll('.ch-btn').forEach(b => b.addEventListener('click', () => {
+        playTone('tap');
+        state.consonant = b.dataset.ch;
+        persistUIState();
+        renderExplore(container);
+      }));
+      container.querySelectorAll('.status-btn').forEach(b => b.addEventListener('click', () => {
+        playTone('tap');
+        state.filterStatus = b.dataset.status;
+        persistUIState();
+        renderExplore(container);
+      }));
+      container.querySelectorAll('.proverb-card').forEach(card => card.addEventListener('click', () => {
+        playTone('tap');
+        openProverbModal(Number(card.dataset.openId));
+      }));
+    }
+
+    // --- Proverb Detail Modal ---
+    function openProverbModal(id) {
+      state.modalId = id;
+      state.modalRevealed = false;
+      state.modalDictation = '';
+      state.modalDictationResult = null;
+      renderProverbModal();
+      const modal = document.getElementById('proverbModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeProverbModal() {
+      state.modalId = null;
+      const modal = document.getElementById('proverbModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function renderProverbModal() {
+      const p = PROVERBS.find(x => x.id === state.modalId);
+      if (!p) return;
+      const isMastered = state.masteredIds.has(p.id);
+      const isFav = state.favoriteIds.has(p.id);
+      const idx = PROVERBS.findIndex(x => x.id === p.id);
+      const prevId = idx > 0 ? PROVERBS[idx - 1].id : null;
+      const nextId = idx < PROVERBS.length - 1 ? PROVERBS[idx + 1].id : null;
+
+      document.getElementById('proverbModalBody').innerHTML = `
+        <div class="flex items-center justify-between gap-2 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-xl bg-[#FFE033] border-2 border-[#222222] text-[#222222] text-xs font-black">${String(p.id).padStart(2, '0')}번 · ${p.ch}</span>
+            <button id="btnSpeakModal" type="button" class="comic-btn px-3 py-1 rounded-xl bg-sky-100 hover:bg-sky-200 text-[#222222] text-xs font-extrabold flex items-center gap-1">
+              <span>🗣️</span><span>소리 내어 듣기</span>
+            </button>
+          </div>
+          <button id="btnCloseModal" type="button" class="comic-btn px-2 py-1 rounded-lg bg-white hover:bg-slate-100 text-[#222222] text-xs font-black">✕</button>
+        </div>
+
+        <h2 class="font-title text-2xl sm:text-3xl text-[#222222] mb-4 leading-snug">${escapeHtml(p.t)}</h2>
+
+        <!-- Step 1: Think First -->
+        <div class="mb-4 rounded-2xl border-2 border-[#222222] bg-amber-50 p-4 shadow-[3px_3px_0_#222]">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="text-xs font-black text-amber-900">💡 1단계: 먼저 뜻을 생각해 보세요!</span>
+            <button id="btnToggleReveal" type="button" class="comic-btn px-3 py-1 rounded-lg bg-[#FFE033] hover:bg-[#ffd60a] text-[#222222] text-xs font-black">
+              ${state.modalRevealed ? '뜻 가리기' : '뜻 확인하기'}
+            </button>
+          </div>
+          ${state.modalRevealed
+            ? `<p class="text-sm sm:text-base text-[#222222] font-bold leading-relaxed animate-pop">${escapeHtml(p.m)}</p>`
+            : `<p class="text-xs text-slate-600 font-medium">속담을 읽고 어떤 뜻일지 머릿속으로 떠올린 뒤 버튼을 눌러 보세요.</p>`
+          }
+        </div>
+
+        <!-- Step 2: Story & Example -->
+        <div class="space-y-3 mb-5">
+          <div class="rounded-2xl bg-orange-50 border-2 border-[#222222] p-4">
+            <div class="text-xs font-black text-[#FF6B4A] mb-1">🍡 찹이 패밀리의 실생활 이야기</div>
+            <p class="text-sm text-[#222222] font-medium leading-relaxed">${escapeHtml(p.s)}</p>
+          </div>
+          <div class="rounded-2xl bg-sky-50 border-2 border-[#222222] p-4">
+            <div class="text-xs font-black text-[#1DA1F2] mb-1">💬 바로 써먹는 한마디</div>
+            <p class="text-sm text-[#222222] font-bold leading-relaxed">“${escapeHtml(p.ex)}”</p>
+          </div>
+        </div>
+
+        <!-- Step 3: Mini Copy Practice -->
+        <div class="rounded-2xl bg-white border-2 border-[#222222] p-3.5 mb-5">
+          <label class="block text-xs font-black text-slate-700 mb-1.5">✏️ 소리 내어 읽고 한 번 따라 써 볼까요?</label>
+          <div class="flex gap-2">
+            <input id="modalDictInput" type="text" value="${escapeHtml(state.modalDictation)}"
+                   placeholder="${escapeHtml(p.t)}"
+                   class="flex-1 px-3 py-2 rounded-xl bg-amber-50/50 border-2 border-[#222222] text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#2EC4B6]" />
+            <button id="btnCheckModalDict" type="button" class="comic-btn px-3.5 py-2 rounded-xl bg-[#2EC4B6] text-white text-xs font-black shrink-0">확인</button>
+          </div>
+          ${state.modalDictationResult !== null
+            ? `<p class="text-xs font-extrabold mt-2 ${state.modalDictationResult ? 'text-emerald-700' : 'text-rose-600'}">
+                 ${state.modalDictationResult ? '🎉 정확하게 따라 썼어요! (+따라쓰기 스탬프)' : '조금 달라요! 띄어쓰기나 글자를 다시 확인해 보세요.'}
+               </p>`
+            : ''
+          }
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between gap-2 pt-3 border-t-2 border-dashed border-amber-200 flex-wrap">
+          <div class="flex items-center gap-2">
+            <button id="btnToggleMastered" type="button"
+              class="comic-btn px-3.5 py-2 rounded-xl text-xs font-black ${
+                isMastered ? 'bg-emerald-500 text-white' : 'bg-white text-[#222222] hover:bg-emerald-50'
+              }">
+              ${isMastered ? '⭐ 외웠어요!' : '☆ 외웠어요 표시'}
+            </button>
+            <button id="btnToggleFav" type="button"
+              class="comic-btn px-3.5 py-2 rounded-xl text-xs font-black ${
+                isFav ? 'bg-rose-500 text-white' : 'bg-white text-[#222222] hover:bg-rose-50'
+              }">
+              ${isFav ? '❤️ 즐겨찾기' : '🤍 즐겨찾기'}
+            </button>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button id="btnPrevModal" type="button" ${prevId ? '' : 'disabled'}
+              class="comic-btn px-3 py-2 rounded-xl bg-white hover:bg-amber-50 disabled:opacity-40 text-xs font-black">◀ 이전</button>
+            <button id="btnNextModal" type="button" ${nextId ? '' : 'disabled'}
+              class="comic-btn px-3 py-2 rounded-xl bg-white hover:bg-amber-50 disabled:opacity-40 text-xs font-black">다음 ▶</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btnCloseModal').addEventListener('click', closeProverbModal);
+      document.getElementById('btnSpeakModal').addEventListener('click', () => speakKorean(`${p.t}. ${p.m}`, { userTriggered: true }));
+      document.getElementById('btnToggleReveal').addEventListener('click', () => {
+        playTone('tap');
+        state.modalRevealed = !state.modalRevealed;
+        renderProverbModal();
+      });
+      const dictInput = document.getElementById('modalDictInput');
+      dictInput.addEventListener('input', e => { state.modalDictation = e.target.value; });
+      const checkModalDict = () => {
+        const ok = normalizeKor(state.modalDictation) === normalizeKor(p.t);
+        state.modalDictationResult = ok;
+        if (ok) {
+          playTone('ok');
+          state.practicedIds.add(p.id);
+          saveState();
+        } else {
+          playTone('no');
+        }
+        renderProverbModal();
+      };
+      document.getElementById('btnCheckModalDict').addEventListener('click', checkModalDict);
+      dictInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkModalDict(); });
+
+      document.getElementById('btnToggleMastered').addEventListener('click', () => {
+        if (state.masteredIds.has(p.id)) {
+          state.masteredIds.delete(p.id);
+          playTone('tap');
+        } else {
+          state.masteredIds.add(p.id);
+          playTone('ok');
+          showToast(`⭐ ${getActiveProfileMeta().name}가 속담 하나를 정복했어요!`);
+        }
+        saveState();
+        renderProverbModal();
+        render();
+      });
+      document.getElementById('btnToggleFav').addEventListener('click', () => {
+        playTone('tap');
+        if (state.favoriteIds.has(p.id)) state.favoriteIds.delete(p.id);
+        else state.favoriteIds.add(p.id);
+        saveState();
+        renderProverbModal();
+        render();
+      });
+      if (prevId) document.getElementById('btnPrevModal').addEventListener('click', () => openProverbModal(prevId));
+      if (nextId) document.getElementById('btnNextModal').addEventListener('click', () => openProverbModal(nextId));
+    }
+
+    // --- Tab 2: Quiz ---
+    function startQuiz(mode, scope) {
+      let pool = PROVERBS;
+      if (scope === 'wrong') {
+        pool = PROVERBS.filter(p => state.wrongIds.has(p.id));
+        if (pool.length < 4) {
+          showToast('오답노트에 4개 이상의 속담이 모여야 오답 퀴즈를 풀 수 있어요!');
+          return;
+        }
+      } else if (scope !== 'all') {
+        pool = PROVERBS.filter(p => p.ch === scope);
+      }
+
+      const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(10, pool.length));
+      const questions = shuffled.map(target => {
+        const distractors = [...PROVERBS].filter(x => x.id !== target.id).sort(() => Math.random() - 0.5).slice(0, 3);
+        const options = [target, ...distractors].sort(() => Math.random() - 0.5);
+        let promptText = '';
+        let badge = '';
+        if (mode === 'meaning') {
+          badge = '🎯 뜻 맞추기';
+          promptText = `“${target.t}”의 뜻으로 알맞은 것은 무엇일까요?`;
+        } else if (mode === 'blank') {
+          badge = '🧩 빈칸 채우기';
+          const masked = target.t.replace(target.b, '(  ?  )');
+          promptText = `빈칸에 들어갈 알맞은 말은? → “${masked}”`;
+        } else {
+          badge = '💬 상황극 퀴즈';
+          promptText = `${target.s} 이 상황에 딱 맞는 속담은?`;
+        }
+        return { target, options, promptText, badge };
+      });
+
+      state.quiz = {
+        mode,
+        scope,
+        started: true,
+        questions,
+        currentIdx: 0,
+        score: 0,
+        streak: 0,
+        maxStreak: 0,
+        answered: false,
+        selectedOption: null,
+        finished: false
+      };
+      persistUIState();
+      render();
+    }
+
+    function renderQuiz(container) {
+      const qz = state.quiz;
+      const meta = getActiveProfileMeta();
+
+      if (!qz.started) {
+        const modes = [
+          { id: 'meaning', title: '🎯 뜻 맞추기', desc: '속담을 보고 알맞은 뜻을 골라요' },
+          { id: 'blank', title: '🧩 빈칸 채우기', desc: '속담 속 핵심 낱말을 맞혀요' },
+          { id: 'situation', title: '💬 상황극 퀴즈', desc: '찹이 패밀리 이야기에 맞는 속담을 찾아요' }
+        ];
+        const scopes = [
+          { id: 'all', label: '전체 100개' },
+          { id: 'ㄱ', label: 'ㄱ' },
+          { id: 'ㄴㄷ', label: 'ㄴ·ㄷ' },
+          { id: 'ㅁㅂ', label: 'ㅁ·ㅂ' },
+          { id: 'ㅅㅇ', label: 'ㅅ·ㅇ' },
+          { id: 'ㅈㅎ', label: 'ㅈ~ㅎ' },
+          { id: 'wrong', label: `오답노트 (${state.wrongIds.size})` }
+        ];
+
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl comic-card p-5 sm:p-6 space-y-5">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <h2 class="font-title text-2xl text-[#222222] mb-0.5">🎯 ${meta.name}의 속담 실력 테스트!</h2>
+                <p class="text-sm text-slate-600 font-medium">원하는 퀴즈 유형과 출제 범위를 고르고 10문제에 도전해 보세요.</p>
+              </div>
+              <span class="comic-burst text-xs font-black px-2.5 py-1 rounded-xl">최고 ${state.bestStreak}콤보!</span>
+            </div>
+
+            <div>
+              <div class="text-xs font-black text-slate-600 mb-2">1. 퀴즈 유형 선택</div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                ${modes.map(m => `
+                  <button type="button" data-qmode="${m.id}" class="qmode-btn comic-btn text-left p-4 rounded-2xl ${
+                    qz.mode === m.id ? 'bg-[#FFE033] text-[#222222]' : 'bg-white hover:bg-amber-50 text-[#222222]'
+                  }">
+                    <div class="font-title text-lg mb-1">${m.title}</div>
+                    <div class="text-xs text-slate-700 font-semibold">${m.desc}</div>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <div class="text-xs font-black text-slate-600 mb-2">2. 출제 범위 선택</div>
+              <div class="flex flex-wrap gap-2">
+                ${scopes.map(s => `
+                  <button type="button" data-qscope="${s.id}" class="qscope-btn comic-btn px-3.5 py-2 rounded-xl text-xs font-extrabold ${
+                    qz.scope === s.id ? 'bg-[#1DA1F2] text-white' : 'bg-amber-50 text-[#222222] hover:bg-amber-100'
+                  }">${s.label}</button>
+                `).join('')}
+              </div>
+            </div>
+
+            <button id="btnStartQuiz" type="button" class="comic-btn w-full py-3.5 rounded-2xl bg-[#FF6B4A] hover:bg-[#f05837] text-white font-title text-xl">
+              🚀 퀴즈 시작하기!
+            </button>
+          </div>
+        `;
+
+        container.querySelectorAll('.qmode-btn').forEach(b => b.addEventListener('click', () => {
+          playTone('tap');
+          state.quiz.mode = b.dataset.qmode;
+          persistUIState();
+          renderQuiz(container);
+        }));
+        container.querySelectorAll('.qscope-btn').forEach(b => b.addEventListener('click', () => {
+          playTone('tap');
+          state.quiz.scope = b.dataset.qscope;
+          persistUIState();
+          renderQuiz(container);
+        }));
+        document.getElementById('btnStartQuiz').addEventListener('click', () => {
+          playTone('tap');
+          startQuiz(state.quiz.mode, state.quiz.scope);
+        });
+        return;
+      }
+
+      if (qz.finished) {
+        const total = qz.questions.length;
+        const pct = Math.round((qz.score / total) * 100);
+        const msg = pct >= 80
+          ? `우와! ${meta.name}는 진정한 속담 박사님이네요!`
+          : pct >= 50
+            ? `잘했어요 ${meta.name}! 조금만 더 복습하면 완벽해요!`
+            : `괜찮아요 ${meta.name}! 틀린 속담을 다시 읽어 보면 금방 늘어요!`;
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl comic-card p-6 sm:p-8 text-center space-y-5 animate-pop">
+            <div class="text-5xl">${pct >= 80 ? '🏆' : pct >= 50 ? '🌟' : '🍡'}</div>
+            <h2 class="font-title text-2xl sm:text-3xl text-[#222222]">퀴즈 완료! ${qz.score} / ${total}점</h2>
+            <p class="text-sm text-slate-700 font-bold">${msg}</p>
+            <div class="inline-flex items-center gap-4 bg-[#FFE033]/50 px-5 py-3 rounded-2xl border-2 border-[#222222] text-sm font-black">
+              <span>정답률 <strong class="text-[#FF6B4A]">${pct}%</strong></span>
+              <span>최대 연속 정답 <strong class="text-[#1DA1F2]">${qz.maxStreak}콤보</strong></span>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+              <button id="btnRetryQuiz" type="button" class="comic-btn px-5 py-3 rounded-2xl bg-[#FF6B4A] text-white font-black text-sm">🔄 다시 풀기</button>
+              <button id="btnQuizHome" type="button" class="comic-btn px-5 py-3 rounded-2xl bg-white text-[#222222] font-black text-sm">⚙️ 다른 유형 고르기</button>
+            </div>
+          </div>
+        `;
+        document.getElementById('btnRetryQuiz').addEventListener('click', () => startQuiz(qz.mode, qz.scope));
+        document.getElementById('btnQuizHome').addEventListener('click', () => { state.quiz.started = false; renderQuiz(container); });
+        return;
+      }
+
+      const item = qz.questions[qz.currentIdx];
+      const total = qz.questions.length;
+      const progressPct = Math.round(((qz.currentIdx + (qz.answered ? 1 : 0)) / total) * 100);
+
+      // Tablet Landscape 2-column split (md:grid-cols-12) so quiz fits in 1280x800 without vertical scrolling
+      container.innerHTML = `
+        <div class="bg-white rounded-3xl comic-card p-4 sm:p-6">
+          <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+            <span class="px-3 py-1 rounded-xl bg-[#FFE033] border-2 border-[#222222] text-[#222222] text-xs font-black">${item.badge} · ${qz.currentIdx + 1} / ${total}</span>
+            <div class="flex items-center gap-3 text-xs font-black">
+              <span class="text-[#FF6B4A]">🔥 ${qz.streak}콤보</span>
+              <span class="text-emerald-600">점수 ${qz.score}</span>
+              <button id="btnQuitQuiz" type="button" class="text-slate-500 hover:text-[#222222] underline">그만하기</button>
+            </div>
+          </div>
+
+          <div class="w-full h-3 bg-amber-100 border-2 border-[#222222] rounded-full overflow-hidden mb-4">
+            <div class="h-full bg-[#2EC4B6] transition-all duration-300" style="width:${progressPct}%"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5 items-start">
+            <!-- Left column: Question Prompt -->
+            <div class="md:col-span-5 rounded-2xl bg-sky-50 border-2 border-[#222222] p-4 sm:p-5 space-y-3 shadow-[3px_3px_0_#222]">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-black text-[#1DA1F2]">🍡 문제 카드</span>
+                <button id="btnSpeakQuiz" type="button" class="comic-btn px-2.5 py-1 rounded-lg bg-white hover:bg-sky-100 text-[#222222] text-xs font-extrabold">🗣️ 듣기</button>
+              </div>
+              <h3 class="font-title text-xl sm:text-2xl text-[#222222] leading-snug">${escapeHtml(item.promptText)}</h3>
+              ${qz.answered ? `
+                <div class="rounded-2xl p-3.5 border-2 border-[#222222] ${qz.selectedOption === item.target.id ? 'bg-emerald-100' : 'bg-rose-100'} animate-pop space-y-1.5">
+                  <div class="font-black text-sm ${qz.selectedOption === item.target.id ? 'text-emerald-900' : 'text-rose-900'}">
+                    ${qz.selectedOption === item.target.id ? '🎉 정답이에요! 척!' : `아쉬워요! 정답은 “${escapeHtml(item.target.t)}”예요.`}
+                  </div>
+                  <p class="text-xs text-[#222222] leading-relaxed"><strong>뜻:</strong> ${escapeHtml(item.target.m)}</p>
+                  <p class="text-xs text-slate-700"><strong>예문:</strong> ${escapeHtml(item.target.ex)}</p>
+                </div>
+              ` : `<p class="text-xs text-slate-600 font-semibold">오른쪽 보기 4개 중에서 정답을 눌러 보세요!</p>`}
+            </div>
+
+            <!-- Right column: 2x2 Choice Grid + Next Button -->
+            <div class="md:col-span-7 space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                ${item.options.map((opt, idx) => {
+                  let label = opt.t;
+                  if (qz.mode === 'meaning') label = opt.m;
+                  else if (qz.mode === 'blank') label = opt.b;
+
+                  let btnClass = 'bg-white hover:bg-amber-50 text-[#222222]';
+                  if (qz.answered) {
+                    if (opt.id === item.target.id) btnClass = 'bg-emerald-200 text-emerald-950 font-black';
+                    else if (opt.id === qz.selectedOption) btnClass = 'bg-rose-200 text-rose-950';
+                    else btnClass = 'bg-slate-100 text-slate-400';
+                  }
+                  return `
+                    <button type="button" data-opt-id="${opt.id}" ${qz.answered ? 'disabled' : ''}
+                      class="quiz-opt quiz-choice-btn comic-btn w-full text-left p-3.5 sm:p-4 rounded-2xl flex items-start gap-2.5 ${btnClass}">
+                      <span class="w-6 h-6 rounded-lg bg-[#FFE033] border border-[#222222] text-[#222222] flex items-center justify-center text-xs font-black shrink-0">${idx + 1}</span>
+                      <span class="text-sm sm:text-base font-bold leading-snug">${escapeHtml(label)}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+
+              ${qz.answered ? `
+                <div class="flex justify-end pt-1">
+                  <button id="btnNextQ" type="button" class="comic-btn px-6 py-3 rounded-2xl bg-[#FF6B4A] hover:bg-[#f05837] text-white text-sm font-black">
+                    ${qz.currentIdx + 1 < total ? '다음 문제 ▶' : '결과 보기 🏆'}
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btnQuitQuiz').addEventListener('click', () => { state.quiz.started = false; renderQuiz(container); });
+      document.getElementById('btnSpeakQuiz').addEventListener('click', () => speakKorean(item.promptText, { userTriggered: true }));
+      container.querySelectorAll('.quiz-opt').forEach(btn => btn.addEventListener('click', () => {
+        const chosen = Number(btn.dataset.optId);
+        qz.answered = true;
+        qz.selectedOption = chosen;
+        if (chosen === item.target.id) {
+          qz.score += 1;
+          qz.streak += 1;
+          qz.maxStreak = Math.max(qz.maxStreak, qz.streak);
+          state.bestStreak = Math.max(state.bestStreak, qz.maxStreak);
+          state.wrongIds.delete(item.target.id);
+          playTone('ok');
+        } else {
+          qz.streak = 0;
+          state.wrongIds.add(item.target.id);
+          playTone('no');
+        }
+        saveState();
+        renderQuiz(container);
+      }));
+
+      const nextBtn = document.getElementById('btnNextQ');
+      if (nextBtn) nextBtn.addEventListener('click', () => {
+        if (qz.currentIdx + 1 < total) {
+          qz.currentIdx += 1;
+          qz.answered = false;
+          qz.selectedOption = null;
+        } else {
+          qz.finished = true;
+          if (qz.score / total >= 0.7 && typeof confetti === 'function') {
+            confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+          }
+        }
+        renderQuiz(container);
+      });
+    }
+
+    // --- Tab 3: Daily Practice & Dictation ---
+    function renderPractice(container) {
+      const daily = getDailyProverbs();
+      if (!state.practice.selectedId || !daily.some(d => d.id === state.practice.selectedId)) {
+        state.practice.selectedId = daily[0].id;
+      }
+      const active = PROVERBS.find(p => p.id === state.practice.selectedId) || daily[0];
+
+      // Tablet Landscape 2-column split (md:grid-cols-12)
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5 items-start">
+          <!-- Left: Today's 3 Missions -->
+          <div class="md:col-span-5 bg-white rounded-3xl comic-card p-5 space-y-3">
+            <div>
+              <h2 class="font-title text-2xl text-[#222222] mb-1">✏️ 오늘의 따라쓰기 미션</h2>
+              <p class="text-xs sm:text-sm text-slate-600 font-medium">오늘 추천된 속담 3개를 소리 내어 읽고 정확히 따라 써 보세요!</p>
+            </div>
+            <div class="space-y-2.5">
+              ${daily.map(p => {
+                const done = state.practicedIds.has(p.id);
+                const selected = p.id === active.id;
+                return `
+                  <button type="button" data-prac-id="${p.id}"
+                    class="prac-pick comic-btn w-full text-left p-3.5 rounded-2xl ${
+                      selected ? 'bg-[#FFE033] text-[#222222]' : 'bg-amber-50/50 hover:bg-amber-100 text-[#222222]'
+                    }">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-xs font-black px-2 py-0.5 rounded-lg bg-white border border-[#222222]">${String(p.id).padStart(2, '0')}번</span>
+                      <span class="text-xs font-black ${done ? 'text-emerald-700' : 'text-slate-500'}">${done ? '✅ 완료' : '도전!'}</span>
+                    </div>
+                    <div class="font-title text-base">${escapeHtml(p.t)}</div>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Right: Active Dictation Board -->
+          <div class="md:col-span-7 bg-white rounded-3xl comic-card p-5 sm:p-6 space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <span class="px-3 py-1 rounded-xl bg-[#2EC4B6] border-2 border-[#222222] text-white text-xs font-black">따라쓰기 연습 · ${String(active.id).padStart(2, '0')}번</span>
+              <button id="btnSpeakPrac" type="button" class="comic-btn px-3 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-[#222222] text-xs font-black">🗣️ 들어보기</button>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-amber-50 border-2 border-[#222222]">
+              <div class="font-title text-2xl text-[#222222] mb-1">${escapeHtml(active.t)}</div>
+              <p class="text-sm text-slate-700 font-medium">${escapeHtml(active.m)}</p>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-black text-slate-700">위에 적힌 속담을 그대로 입력해 보세요:</label>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <input id="pracInput" type="text" value="${escapeHtml(state.practice.inputVal)}"
+                       placeholder="${escapeHtml(active.t)}"
+                       class="flex-1 px-4 py-3 rounded-2xl bg-white border-2 border-[#222222] text-base font-bold focus:outline-none focus:ring-2 focus:ring-[#2EC4B6]" />
+                <button id="btnCheckPrac" type="button" class="comic-btn px-6 py-3 rounded-2xl bg-[#FF6B4A] hover:bg-[#f05837] text-white font-black text-sm shrink-0">검사하기</button>
+              </div>
+            </div>
+
+            ${state.practice.checked ? `
+              <div class="p-4 rounded-2xl border-2 border-[#222222] ${state.practice.isCorrect ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900'} text-sm font-extrabold animate-pop">
+                ${state.practice.isCorrect
+                  ? '🎉 완벽해요! 오늘의 따라쓰기 스탬프와 외웠어요 별을 받았어요!'
+                  : '아쉬워요! 글자 순서나 맞춤법을 한 번 더 확인해서 적어 보세요.'}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      container.querySelectorAll('.prac-pick').forEach(b => b.addEventListener('click', () => {
+        playTone('tap');
+        state.practice.selectedId = Number(b.dataset.pracId);
+        state.practice.inputVal = '';
+        state.practice.checked = false;
+        persistUIState();
+        renderPractice(container);
+      }));
+      document.getElementById('btnSpeakPrac').addEventListener('click', () => speakKorean(`${active.t}. ${active.m}`, { userTriggered: true }));
+      const pracInput = document.getElementById('pracInput');
+      pracInput.addEventListener('input', e => { state.practice.inputVal = e.target.value; });
+      const checkPractice = () => {
+        const ok = normalizeKor(state.practice.inputVal) === normalizeKor(active.t);
+        state.practice.checked = true;
+        state.practice.isCorrect = ok;
+        if (ok) {
+          playTone('ok');
+          state.practicedIds.add(active.id);
+          state.masteredIds.add(active.id);
+          saveState();
+        } else {
+          playTone('no');
+        }
+        renderPractice(container);
+      };
+      document.getElementById('btnCheckPrac').addEventListener('click', checkPractice);
+      pracInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkPractice(); });
+    }
+
+    // --- Tab 4: Progress & PWA ---
+    function renderProgress(container) {
+      const meta = getActiveProfileMeta();
+      const mCount = state.masteredIds.size;
+      const pct = Math.round((mCount / PROVERBS.length) * 100);
+      const rank = getRankInfo(mCount);
+      const badges = [
+        { name: '새싹 탐험가', desc: '속담 5개 이상 외우기', icon: '🌱', unlocked: mCount >= 5 },
+        { name: '찹이 단짝', desc: '속담 25개 이상 외우기', icon: '🍡', unlocked: mCount >= 25 },
+        { name: '속담 척척박사', desc: '속담 50개 이상 외우기', icon: '🎓', unlocked: mCount >= 50 },
+        { name: '국어 왕 중의 왕', desc: '속담 100개 모두 외우기', icon: '👑', unlocked: mCount >= 100 }
+      ];
+
+      const chBreakdown = CONSONANT_GROUPS.filter(g => g.id !== 'all').map(g => {
+        const groupItems = PROVERBS.filter(p => p.ch === g.id);
+        const done = groupItems.filter(p => state.masteredIds.has(p.id)).length;
+        const gPct = Math.round((done / groupItems.length) * 100);
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs font-extrabold">
+              <span class="text-[#222222]">${g.label}</span>
+              <span class="text-slate-600">${done} / ${groupItems.length} (${gPct}%)</span>
+            </div>
+            <div class="w-full h-2.5 bg-amber-100 border border-[#222222] rounded-full overflow-hidden">
+              <div class="h-full bg-[#FF6B4A] transition-all" style="width:${gPct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const wrongList = PROVERBS.filter(p => state.wrongIds.has(p.id));
+
+      container.innerHTML = `
+        <div class="space-y-5">
+          <!-- Summary & Badges (2-column on md+) -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div class="md:col-span-7 bg-white rounded-3xl comic-card p-5 space-y-4">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h2 class="font-title text-xl text-[#222222]">📊 ${meta.emoji} ${meta.name}의 속담 정복률</h2>
+                  <span class="inline-block mt-0.5 text-xs font-black px-2.5 py-0.5 rounded-full bg-[#FFE033] border border-[#222222]">${rank.title}</span>
+                </div>
+                <span class="text-3xl font-black text-[#FF6B4A]">${pct}%</span>
+              </div>
+              <div class="w-full h-4 bg-amber-100 border-2 border-[#222222] rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-[#FF6B4A] to-[#FFE033] transition-all" style="width:${pct}%"></div>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-center pt-1">
+                <div class="p-2.5 rounded-2xl bg-emerald-50 border-2 border-[#222222]">
+                  <div class="text-lg font-black text-emerald-700">${mCount}</div>
+                  <div class="text-[11px] font-extrabold text-emerald-800">외운 속담</div>
+                </div>
+                <div class="p-2.5 rounded-2xl bg-sky-50 border-2 border-[#222222]">
+                  <div class="text-lg font-black text-[#1DA1F2]">${state.practicedIds.size}</div>
+                  <div class="text-[11px] font-extrabold text-sky-800">따라쓰기</div>
+                </div>
+                <div class="p-2.5 rounded-2xl bg-rose-50 border-2 border-[#222222]">
+                  <div class="text-lg font-black text-rose-600">${state.favoriteIds.size}</div>
+                  <div class="text-[11px] font-extrabold text-rose-800">즐겨찾기</div>
+                </div>
+              </div>
+              <div class="space-y-2.5 pt-2 border-t-2 border-dashed border-amber-200">${chBreakdown}</div>
+            </div>
+
+            <!-- Badges -->
+            <div class="md:col-span-5 bg-white rounded-3xl comic-card p-5 space-y-4 flex flex-col justify-between">
+              <div class="space-y-3">
+                <h2 class="font-title text-xl text-[#222222]">🏆 ${meta.name}가 모은 배지</h2>
+                <div class="grid grid-cols-2 gap-2.5">
+                  ${badges.map(b => `
+                    <div class="p-3 rounded-2xl border-2 border-[#222222] ${b.unlocked ? 'bg-[#FFE033]/50 shadow-[2px_2px_0_#222]' : 'bg-slate-100 opacity-55'} text-center">
+                      <div class="text-3xl mb-1">${b.icon}</div>
+                      <div class="font-black text-xs text-[#222222]">${b.name}</div>
+                      <div class="text-[11px] text-slate-600 font-semibold">${b.desc}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              <div class="pt-3 border-t-2 border-dashed border-amber-200 flex flex-wrap gap-2 justify-between items-center">
+                <button id="btnOpenInstallCard" type="button" class="comic-btn px-3 py-2 rounded-xl bg-sky-100 hover:bg-sky-200 text-[#222222] text-xs font-black">📲 PWA 설치 안내</button>
+                <div class="flex gap-2">
+                  <button id="btnExportJson" type="button" class="comic-btn px-3 py-2 rounded-xl bg-white hover:bg-amber-50 text-[#222222] text-xs font-black">💾 저장</button>
+                  <button id="btnAskReset" type="button" class="comic-btn px-3 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-black">🗑️ 초기화</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wrong Notes -->
+          <div class="bg-white rounded-3xl comic-card p-5">
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <h3 class="font-title text-xl text-[#222222]">📝 오답노트 (${wrongList.length}개)</h3>
+              ${wrongList.length >= 4 ? '<button id="btnReviewWrongQuiz" type="button" class="comic-btn px-3.5 py-1.5 rounded-xl bg-rose-500 text-white text-xs font-black">오답만 다시 풀기</button>' : ''}
+            </div>
+            ${wrongList.length === 0
+              ? '<p class="text-sm text-slate-600 font-medium">아직 틀린 속담이 없어요! 퀴즈 탭에서 실력을 뽐내 보세요.</p>'
+              : `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                   ${wrongList.map(p => `
+                     <button type="button" data-open-id="${p.id}" class="wrong-card comic-btn text-left p-3.5 rounded-2xl bg-rose-50 hover:bg-rose-100">
+                       <div class="font-black text-sm text-[#222222] mb-0.5">${String(p.id).padStart(2, '0')}. ${escapeHtml(p.t)}</div>
+                       <div class="text-xs text-slate-600 line-clamp-1 font-medium">${escapeHtml(p.m)}</div>
+                     </button>
+                   `).join('')}
+                 </div>`
+            }
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btnOpenInstallCard').addEventListener('click', openInstallModal);
+      document.getElementById('btnExportJson').addEventListener('click', () => {
+        const data = JSON.stringify({
+          profile: meta.name,
+          exportedAt: new Date().toISOString(),
+          mastered: [...state.masteredIds],
+          favorites: [...state.favoriteIds],
+          practiced: [...state.practicedIds]
+        }, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `어린이속담_${meta.name}_학습기록.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast(`${meta.name}의 학습 기록 파일을 내려받았어요!`);
+      });
+      document.getElementById('btnAskReset').addEventListener('click', () => {
+        document.getElementById('resetModalTitle').textContent = `${meta.emoji} ${meta.name}의 학습 기록을 초기화할까요?`;
+        const m = document.getElementById('confirmModal');
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+      });
+      const reviewBtn = document.getElementById('btnReviewWrongQuiz');
+      if (reviewBtn) reviewBtn.addEventListener('click', () => {
+        state.activeTab = 'quiz';
+        startQuiz('meaning', 'wrong');
+      });
+      container.querySelectorAll('.wrong-card').forEach(c => c.addEventListener('click', () => openProverbModal(Number(c.dataset.openId))));
+    }
+
+    // --- Install Modal ---
+    function openInstallModal() {
+      const modal = document.getElementById('installModal');
+      const box = document.getElementById('installModalContent');
+      box.innerHTML = `
+        <p class="leading-relaxed"><strong>읽으면서 바로 써먹는 어린이 속담</strong>은 스마트폰·태블릿·PC 홈 화면에 설치해 오프라인에서도 앱처럼 쓸 수 있는 <strong>PWA</strong>예요.</p>
+        ${deferredInstallPrompt
+          ? `<button id="btnTriggerNativeInstall" type="button" class="comic-btn w-full py-3 rounded-2xl bg-[#FF6B4A] text-white font-black text-sm">📲 지금 바로 기기에 설치하기</button>`
+          : `<div class="rounded-2xl bg-amber-50 border-2 border-[#222222] p-3.5 space-y-2 text-xs text-slate-700 font-medium">
+               <div><strong>📱 아이폰 / 아이패드 (Safari):</strong> 하단 <strong>공유(□↑)</strong> 버튼 → <strong>홈 화면에 추가</strong></div>
+               <div><strong>🤖 안드로이드 (Chrome / 삼성 인터넷):</strong> 우측 상단 <strong>메뉴(⋮)</strong> → <strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong></div>
+               <div><strong>💻 PC (Chrome / Edge):</strong> 주소창 오른쪽 <strong>설치(⊕)</strong> 아이콘 클릭</div>
+             </div>`
+        }
+      `;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      const nativeBtn = document.getElementById('btnTriggerNativeInstall');
+      if (nativeBtn && deferredInstallPrompt) {
+        nativeBtn.addEventListener('click', async () => {
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        });
+      }
+    }
+
+    // ==========================================
+    // 6. Native Touch Guards, PWA Hooks & Init
+    // ==========================================
+    document.addEventListener('contextmenu', (e) => {
+      if (!e.target || !e.target.closest('input, textarea')) e.preventDefault();
+    });
+    document.addEventListener('dragstart', (e) => {
+      if (!e.target || !e.target.closest('input, textarea')) e.preventDefault();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && state.modalId !== null) closeProverbModal();
+    });
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      const btn = document.getElementById('btnInstallHeader');
+      if (btn) btn.classList.add('hidden');
+      showToast('🎉 어린이 속담 앱이 홈 화면에 설치되었어요!');
+    });
+
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      render();
+
+      document.getElementById('btnProfileJunwoo').addEventListener('click', () => switchProfile('junwoo'));
+      document.getElementById('btnProfileJiwoo').addEventListener('click', () => switchProfile('jiwoo'));
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playTone('tap');
+          state.activeTab = btn.dataset.tab;
+          persistUIState();
+          render();
+        });
+      });
+
+      document.querySelectorAll('.series-soon').forEach(btn => {
+        btn.addEventListener('click', () => {
+          showToast(`《읽으면서 바로 써먹는 어린이 ${btn.dataset.series}》 편은 다음 시리즈로 확장 예정이에요!`);
+        });
+      });
+
+      document.getElementById('btnSoundToggle').addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        saveState();
+        updateHeaderUI();
+        if (state.soundEnabled) playTone('ok');
+      });
+
+      document.getElementById('btnQuickQuiz').addEventListener('click', () => {
+        playTone('tap');
+        state.activeTab = 'quiz';
+        startQuiz('situation', 'all');
+      });
+
+      document.getElementById('btnInstallHeader').addEventListener('click', openInstallModal);
+      document.getElementById('btnCloseInstall').addEventListener('click', () => {
+        const m = document.getElementById('installModal');
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      });
+
+      document.getElementById('proverbModal').addEventListener('click', e => {
+        if (e.target.id === 'proverbModal') closeProverbModal();
+      });
+
+      document.getElementById('btnCancelReset').addEventListener('click', () => {
+        const m = document.getElementById('confirmModal');
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      });
+      document.getElementById('btnConfirmReset').addEventListener('click', () => {
+        state.masteredIds.clear();
+        state.favoriteIds.clear();
+        state.wrongIds.clear();
+        state.practicedIds.clear();
+        state.bestStreak = 0;
+        saveState();
+        const m = document.getElementById('confirmModal');
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+        showToast(`${getActiveProfileMeta().name}의 학습 기록을 초기화했어요.`);
+        render();
+      });
+    });
+  </script>
+</body>
+</html>
