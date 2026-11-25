@@ -20,10 +20,12 @@
 3. **iPhone / iPad Safari**: 공유 버튼 → **홈 화면에 추가**
 4. **PC Chrome / Edge**: 주소창 오른쪽 **설치** 아이콘 클릭
 
-## 포함된 파일
-- `index.html`: 메인 앱 (100개 속담 데이터, 도감·퀴즈·따라쓰기·내 학습장, 이중 TTS 엔진, 반응형 레이아웃)
+## 포함된 파일 & 시리즈 확장 구조
+- `index.html`: 시리즈 공통 학습 엔진 (도감·퀴즈·따라쓰기·내 학습장·이중 TTS·준우/지우 듀얼 프로필·시리즈 전환기)
+- `data/series-registry.js`: 《읽으면서 바로 써먹는 어린이》 시리즈 목록 레지스트리 (`속담`, `관용구`, `고사성어`, `맞춤법`)
+- `data/proverbs.js`: 속담 100개 데이터 팩 (새 권 추가 시 `data/<packId>.js` 파일만 추가하고 레지스트리에서 `ready: true`로 활성화하면 자동 연동)
 - `manifest.json`: PWA 설치 매니페스트 (`orientation: "any"`, `any` / `maskable` 아이콘 분리)
 - `sw.js`: 오프라인 캐싱 서비스 워커 (stale-while-revalidate + 오프라인 네비게이션 폴백)
 - `icon-192.png`, `icon-512.png`: 앱 아이콘
 - `assets/`: `chabi-mascot.jpg`, `chabi-hero.jpg` 마스코트 및 배너 이미지
-- `tests/`: Node.js 데이터·로직·PWA 무결성 테스트 (`node --test tests/*.test.js`)
+- `tests/`: Node.js 시리즈 팩·데이터·PWA 무결성 테스트 (`node --test tests/*.test.js`)

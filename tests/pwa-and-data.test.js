@@ -2,20 +2,35 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 
 const ROOT = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const manifestRaw = fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8');
 const swRaw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+const registryRaw = fs.readFileSync(path.join(ROOT, 'data', 'series-registry.js'), 'utf8');
+const proverbsPackRaw = fs.readFileSync(path.join(ROOT, 'data', 'proverbs.js'), 'utf8');
 
-function extractProverbs() {
-  const m = html.match(/const PROVERBS = \[([\s\S]*?)\];/);
-  assert.ok(m, 'PROVERBS array must exist in index.html');
-  return eval('[' + m[1] + ']');
+function loadSeriesPacks() {
+  const sandbox = { window: {} };
+  vm.runInNewContext(registryRaw, sandbox);
+  vm.runInNewContext(proverbsPackRaw, sandbox);
+  return sandbox.window;
 }
 
-test('PROVERBS dataset has exact 100 unique proverbs across consonant groups with valid schema', () => {
-  const data = extractProverbs();
+test('Series registry and proverbs data pack follow extensible contract with 100 unique items', () => {
+  const win = loadSeriesPacks();
+  assert.ok(Array.isArray(win.SERIES_REGISTRY) && win.SERIES_REGISTRY.length >= 2, 'SERIES_REGISTRY must list extensible series books');
+  assert.ok(win.SERIES_REGISTRY.some(s => s.id === 'proverbs' && s.ready === true), 'proverbs pack must be ready');
+
+  const pack = win.SERIES_DATA && win.SERIES_DATA.proverbs;
+  assert.ok(pack, 'SERIES_DATA.proverbs must be registered');
+  assert.ok(pack.titlePrefix && pack.titleBlue && pack.titleYellow && pack.unitName);
+  assert.ok(Array.isArray(pack.groups) && pack.groups.length === 6);
+  assert.ok(Array.isArray(pack.quizModes) && pack.quizModes.length === 3);
+  assert.ok(Array.isArray(pack.badges) && pack.badges.length === 4);
+
+  const data = pack.items;
   assert.equal(data.length, 100);
 
   const expectedGroups = { 'ㄱ': 18, 'ㄴㄷ': 19, 'ㅁㅂ': 24, 'ㅅㅇ': 22, 'ㅈㅎ': 17 };
@@ -40,7 +55,9 @@ test('PROVERBS dataset has exact 100 unique proverbs across consonant groups wit
   assert.deepEqual(groupCounts, expectedGroups);
 });
 
-test('index.html inline script parses cleanly with zero syntax errors', () => {
+test('index.html inline script and external data scripts parse cleanly with zero syntax errors', () => {
+  assert.doesNotThrow(() => new Function(registryRaw));
+  assert.doesNotThrow(() => new Function(proverbsPackRaw));
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   assert.equal(scripts.length, 1, 'Expected 1 inline <script> block');
   assert.doesNotThrow(() => new Function(scripts[0][1]));
@@ -77,6 +94,8 @@ test('index.html references single external ./manifest.json and registers sw.js 
   assert.ok(html.includes('<link rel="manifest" href="./manifest.json" />'));
   assert.ok(!html.includes('data:application/manifest+json'), 'Must not inject data-URI manifest');
   assert.ok(!html.includes('data:image/jpeg;base64,'), 'Heavy inline base64 images should be extracted to assets/');
+  assert.ok(html.includes('<script src="./data/series-registry.js"></script>'));
+  assert.ok(html.includes('<script src="./data/proverbs.js"></script>'));
   assert.ok(html.includes("navigator.serviceWorker.register('./sw.js')"));
   assert.ok(html.includes('beforeinstallprompt'));
   assert.ok(html.includes('appinstalled'));
@@ -94,7 +113,7 @@ test('sw.js parses cleanly and all CORE_ASSETS exist on disk', () => {
   }
 });
 
-test('Touch guards, dual-tier Korean TTS, dual profiles, UI persistence, and responsive rules are wired', () => {
+test('Touch guards, dual-tier Korean TTS, dual profiles, series switcher, UI persistence, and responsive rules are wired', () => {
   assert.ok(html.includes('-webkit-touch-callout: none'), 'Long-press callout must be disabled');
   assert.ok(html.includes('user-select: none'), 'Global text selection must be disabled');
   assert.ok(html.includes("document.addEventListener('contextmenu'"), 'Context menu prevention must be wired');
@@ -104,8 +123,8 @@ test('Touch guards, dual-tier Korean TTS, dual profiles, UI persistence, and res
   assert.ok(html.includes('function speakKorean('), 'Dual-tier speakKorean must exist');
   assert.ok(html.includes('function persistUIState()'), 'UI state persistence must be wired');
   assert.ok(html.includes('function restoreUIStateFromProfile()'), 'UI state restoration must be wired');
+  assert.ok(html.includes('function switchSeriesPack('), 'Series pack switching must be wired');
   assert.ok(html.includes('준우') && html.includes('지우'), 'Dual Junwoo/Jiwoo profiles must be wired');
   assert.ok(html.includes('@media (min-width: 768px)'), 'Tablet/Z Fold unfolded breakpoint must exist');
   assert.ok(html.includes('@media (max-width: 390px)'), 'Narrow phone/Z Fold cover breakpoint must exist');
 });
-
