@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chabi-proverbs-v3';
+const CACHE_NAME = 'chabi-proverbs-v4';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -8,7 +8,10 @@ const CORE_ASSETS = [
   './assets/chabi-mascot.jpg',
   './assets/chabi-hero.jpg',
   './data/series-registry.js',
-  './data/proverbs.js'
+  './data/proverbs.js',
+  './data/idioms.js',
+  './data/chengyu.js',
+  './data/spelling.js'
 ];
 
 const CACHEABLE_CDN_HOSTS = new Set([

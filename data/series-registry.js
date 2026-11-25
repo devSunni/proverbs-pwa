@@ -1,10 +1,10 @@
 // ==========================================
-// 읽으면서 바로 써먹는 어린이 시리즈 레지스트리
-// 새 권(관용구·고사성어·맞춤법 등)을 추가할 때:
+// 읽으면서 바로 써먹는 어린이 시리즈 레지스트리 (전 4권 완비: 총 400개)
+// 새 권을 추가할 때:
 //   1) data/<packId>.js 작성 (window.SERIES_DATA[packId] 등록)
 //   2) index.html에 <script src="./data/<packId>.js"></script> 추가
 //   3) sw.js의 CORE_ASSETS에 './data/<packId>.js' 추가
-//   4) 아래 목록에서 ready: true로 변경
+//   4) 아래 목록에 등록하고 ready: true 설정
 // ==========================================
 window.SERIES_REGISTRY = [
   {
@@ -20,7 +20,7 @@ window.SERIES_REGISTRY = [
     label: '관용구',
     fullTitle: '읽으면서 바로 써먹는 어린이 관용구',
     icon: '💬',
-    ready: false,
+    ready: true,
     accent: '#2EC4B6'
   },
   {
@@ -28,7 +28,7 @@ window.SERIES_REGISTRY = [
     label: '고사성어',
     fullTitle: '읽으면서 바로 써먹는 어린이 고사성어',
     icon: '📜',
-    ready: false,
+    ready: true,
     accent: '#8B5CF6'
   },
   {
@@ -36,7 +36,7 @@ window.SERIES_REGISTRY = [
     label: '맞춤법',
     fullTitle: '읽으면서 바로 써먹는 어린이 맞춤법',
     icon: '✏️',
-    ready: false,
+    ready: true,
     accent: '#1DA1F2'
   }
 ];

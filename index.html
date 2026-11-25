@@ -17,6 +17,9 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script src="./data/series-registry.js"></script>
   <script src="./data/proverbs.js"></script>
+  <script src="./data/idioms.js"></script>
+  <script src="./data/chengyu.js"></script>
+  <script src="./data/spelling.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap');
     :root {
@@ -234,7 +237,7 @@
         </p>
         <div class="flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
           <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border-2 border-[#222222] shadow-[2px_2px_0_#222] text-xs font-extrabold">
-            <span class="text-emerald-600">⭐ 외운 속담</span>
+            <span id="heroMasteredLabel" class="text-emerald-600">⭐ 외운 속담</span>
             <span id="heroMasteredCount" class="text-base text-[#222222]">0 / 100</span>
           </div>
           <button id="btnQuickQuiz" type="button" class="comic-btn px-3.5 py-2 rounded-xl bg-[#FFE033] hover:bg-[#ffd60a] text-[#222222] text-xs font-black">
@@ -785,8 +788,17 @@
       });
 
       const hero = document.getElementById('heroSection');
+      if (pack.heroGradient) hero.style.background = pack.heroGradient;
+      else hero.style.background = '';
       if (state.activeTab === 'explore') hero.classList.remove('hidden');
       else hero.classList.add('hidden');
+
+      const tabExplore = document.querySelector('.tab-btn[data-tab="explore"]');
+      const tabQuiz = document.querySelector('.tab-btn[data-tab="quiz"]');
+      if (tabExplore) tabExplore.textContent = `📚 ${pack.unitName} 도감`;
+      if (tabQuiz) tabQuiz.textContent = `🎯 ${pack.unitName} 퀴즈`;
+      const heroMasteredLabel = document.getElementById('heroMasteredLabel');
+      if (heroMasteredLabel) heroMasteredLabel.textContent = `⭐ 외운 ${pack.unitName}`;
     }
 
     function render() {
@@ -862,7 +874,7 @@
               <div class="relative flex-1">
                 <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
                 <input id="searchInput" type="text" value="${escapeHtml(state.searchQuery)}"
-                       placeholder="속담이나 뜻으로 검색해 보세요 (예: 호랑이, 떡, 노력)"
+                       placeholder="${escapeHtml(getActivePack().searchPlaceholder || '검색어를 입력해 보세요')}"
                        class="w-full pl-9 pr-9 py-2.5 rounded-xl bg-amber-50/70 border-2 border-[#222222] text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#1DA1F2]" />
                 ${state.searchQuery ? '<button id="btnClearSearch" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-[#222222] font-black">✕</button>' : ''}
               </div>
@@ -1126,18 +1138,14 @@
       const meta = getActiveProfileMeta();
 
       if (!qz.started) {
-        const modes = [
-          { id: 'meaning', title: '🎯 뜻 맞추기', desc: '속담을 보고 알맞은 뜻을 골라요' },
-          { id: 'blank', title: '🧩 빈칸 채우기', desc: '속담 속 핵심 낱말을 맞혀요' },
-          { id: 'situation', title: '💬 상황극 퀴즈', desc: '찹이 패밀리 이야기에 맞는 속담을 찾아요' }
+        const pack = getActivePack();
+        const modes = pack.quizModes || [
+          { id: 'meaning', title: '🎯 뜻 맞추기', desc: `${pack.unitName}을(를) 보고 알맞은 뜻을 골라요` },
+          { id: 'blank', title: '🧩 빈칸 채우기', desc: `${pack.unitName} 속 핵심 낱말을 맞혀요` },
+          { id: 'situation', title: '💬 상황극 퀴즈', desc: `찹이 패밀리 이야기에 맞는 ${pack.unitName}을(를) 찾아요` }
         ];
         const scopes = [
-          { id: 'all', label: '전체 100개' },
-          { id: 'ㄱ', label: 'ㄱ' },
-          { id: 'ㄴㄷ', label: 'ㄴ·ㄷ' },
-          { id: 'ㅁㅂ', label: 'ㅁ·ㅂ' },
-          { id: 'ㅅㅇ', label: 'ㅅ·ㅇ' },
-          { id: 'ㅈㅎ', label: 'ㅈ~ㅎ' },
+          ...getActiveGroups().map(g => ({ id: g.id, label: g.label })),
           { id: 'wrong', label: `오답노트 (${state.wrongIds.size})` }
         ];
 
@@ -1145,7 +1153,7 @@
           <div class="bg-white rounded-3xl comic-card p-5 sm:p-6 space-y-5">
             <div class="flex items-center justify-between flex-wrap gap-2">
               <div>
-                <h2 class="font-title text-2xl text-[#222222] mb-0.5">🎯 ${meta.name}의 속담 실력 테스트!</h2>
+                <h2 class="font-title text-2xl text-[#222222] mb-0.5">🎯 ${meta.name}의 ${pack.unitName} 실력 테스트!</h2>
                 <p class="text-sm text-slate-600 font-medium">원하는 퀴즈 유형과 출제 범위를 고르고 10문제에 도전해 보세요.</p>
               </div>
               <span class="comic-burst text-xs font-black px-2.5 py-1 rounded-xl">최고 ${state.bestStreak}콤보!</span>
@@ -1444,15 +1452,16 @@
     // --- Tab 4: Progress & PWA ---
     function renderProgress(container) {
       const meta = getActiveProfileMeta();
+      const pack = getActivePack();
       const mCount = state.masteredIds.size;
       const pct = Math.round((mCount / getActiveItems().length) * 100);
       const rank = getRankInfo(mCount);
-      const badges = [
-        { name: '새싹 탐험가', desc: '속담 5개 이상 외우기', icon: '🌱', unlocked: mCount >= 5 },
-        { name: '찹이 단짝', desc: '속담 25개 이상 외우기', icon: '🍡', unlocked: mCount >= 25 },
-        { name: '속담 척척박사', desc: '속담 50개 이상 외우기', icon: '🎓', unlocked: mCount >= 50 },
-        { name: '국어 왕 중의 왕', desc: '속담 100개 모두 외우기', icon: '👑', unlocked: mCount >= 100 }
-      ];
+      const badges = (pack.badges || [
+        { name: '새싹 탐험가', desc: `${pack.unitName} 5개 이상 외우기`, icon: '🌱', threshold: 5 },
+        { name: '찹이 단짝', desc: `${pack.unitName} 25개 이상 외우기`, icon: '🍡', threshold: 25 },
+        { name: `${pack.unitName} 척척박사`, desc: `${pack.unitName} 50개 이상 외우기`, icon: '🎓', threshold: 50 },
+        { name: '국어 왕 중의 왕', desc: `${pack.unitName} 100개 모두 외우기`, icon: '👑', threshold: 100 }
+      ]).map(b => ({ ...b, unlocked: mCount >= b.threshold }));
 
       const chBreakdown = getActiveGroups().filter(g => g.id !== 'all').map(g => {
         const groupItems = getActiveItems().filter(p => p.ch === g.id);
@@ -1480,7 +1489,7 @@
             <div class="md:col-span-7 bg-white rounded-3xl comic-card p-5 space-y-4">
               <div class="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <h2 class="font-title text-xl text-[#222222]">📊 ${meta.emoji} ${meta.name}의 속담 정복률</h2>
+                  <h2 class="font-title text-xl text-[#222222]">📊 ${meta.emoji} ${meta.name}의 ${pack.unitName} 정복률</h2>
                   <span class="inline-block mt-0.5 text-xs font-black px-2.5 py-0.5 rounded-full bg-[#FFE033] border border-[#222222]">${rank.title}</span>
                 </div>
                 <span class="text-3xl font-black text-[#FF6B4A]">${pct}%</span>
@@ -1491,7 +1500,7 @@
               <div class="grid grid-cols-3 gap-2 text-center pt-1">
                 <div class="p-2.5 rounded-2xl bg-emerald-50 border-2 border-[#222222]">
                   <div class="text-lg font-black text-emerald-700">${mCount}</div>
-                  <div class="text-[11px] font-extrabold text-emerald-800">외운 속담</div>
+                  <div class="text-[11px] font-extrabold text-emerald-800">외운 ${pack.unitName}</div>
                 </div>
                 <div class="p-2.5 rounded-2xl bg-sky-50 border-2 border-[#222222]">
                   <div class="text-lg font-black text-[#1DA1F2]">${state.practicedIds.size}</div>
@@ -1563,7 +1572,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `어린이속담_${meta.name}_학습기록.json`;
+        a.download = `어린이${pack.unitName}_${meta.name}_학습기록.json`;
         a.click();
         URL.revokeObjectURL(url);
         showToast(`${meta.name}의 학습 기록 파일을 내려받았어요!`);
